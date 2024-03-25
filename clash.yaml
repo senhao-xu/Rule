@@ -34,6 +34,10 @@ proxy-groups:
     filter: "(GPT|美国)"
     use:
       - DDK
+  - name: WeChat
+    type: select
+    use:
+      - DDK
   - name: Domestic
     type: select
     proxies:
@@ -49,6 +53,12 @@ proxy-groups:
       - Proxy
       - Domestic
 rule-providers:
+  wechat:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Wechat.list"
+    path: ./ruleset/wechat.yaml
+    interval: 86400
   reject:
     type: http
     behavior: domain
@@ -189,6 +199,7 @@ rules:
   - RULE-SET,google,DIRECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,direct,DIRECT
+  - RULE-SET,wechat,WeChat
   - RULE-SET,telegramcidr,Proxy
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
