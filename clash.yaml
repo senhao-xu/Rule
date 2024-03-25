@@ -1,8 +1,46 @@
-mixed-port: 7890
-allow-lan: false
-mode: Rule
-log-level: silent
-external-controller: 127.0.0.1:60000
+port: 7890           # HTTP 代理端口
+socks-port: 7891     # Socks 端口
+redir-port: 7892     # Redir 端口
+mixed-port: 7893     # 混合端口
+allow-lan: true      # 允许局域网连接
+bind-address: "*"    # 地址绑定
+mode: rule           # 规则模式
+log-level: info      # 日志级别
+ipv6: false          # IPV6开关
+external-controller: 127.0.0.1:9090
+
+dns:
+  enable: true       # 不使用系统 DNS
+  ipv6: false        # 关闭 IPV6
+  listen: 0.0.0.0:53 # dns 监听
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "*.lan"
+    - localhost.ptlogin2.qq.com
+    - +.srv.nintendo.net
+    - +.stun.playstation.net
+    - +.msftconnecttest.com
+    - +.msftncsi.com
+    - +.xboxlive.com
+    - msftconnecttest.com
+    - xbox.*.microsoft.com
+    - "*.battlenet.com.cn"
+    - "*.battlenet.com"
+    - "*.blzstatic.cn"
+    - "*.battle.net"
+  nameserver:        # 默认 DNS 服务
+    - 223.5.5.5
+    - 119.29.29.29
+  fallback:          # 国外 DNS 服务器
+    - https://cloudflare-dns.com/dns-query
+    - https://dns.google/dns-query
+    - https://dns.alidns.com/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
 proxy-providers:
   DDK:
     type: http
@@ -145,62 +183,64 @@ rule-providers:
      interval: 86400
 # 分流规则
 rules:
-  - PROCESS-NAME,v2ray,Domestic
-  - PROCESS-NAME,xray,Domestic
-  - PROCESS-NAME,naive,Domestic
-  - PROCESS-NAME,trojan,Domestic
-  - PROCESS-NAME,trojan-go,Domestic
-  - PROCESS-NAME,ss-local,Domestic
-  - PROCESS-NAME,privoxy,Domestic
-  - PROCESS-NAME,leaf,Domestic
-  - PROCESS-NAME,v2ray.exe,Domestic
-  - PROCESS-NAME,xray.exe,Domestic
-  - PROCESS-NAME,naive.exe,Domestic
-  - PROCESS-NAME,trojan.exe,Domestic
-  - PROCESS-NAME,trojan-go.exe,Domestic
-  - PROCESS-NAME,ss-local.exe,Domestic
-  - PROCESS-NAME,privoxy.exe,Domestic
-  - PROCESS-NAME,leaf.exe,Domestic
-  - PROCESS-NAME,Surge,Domestic
-  - PROCESS-NAME,Surge 2,Domestic
-  - PROCESS-NAME,Surge 3,Domestic
-  - PROCESS-NAME,Surge 4,Domestic
-  - PROCESS-NAME,Surge%202,Domestic
-  - PROCESS-NAME,Surge%203,Domestic
-  - PROCESS-NAME,Surge%204,Domestic
-  - PROCESS-NAME,Thunder,Domestic
-  - PROCESS-NAME,DownloadService,Domestic
-  - PROCESS-NAME,qBittorrent,Domestic
-  - PROCESS-NAME,Transmission,Domestic
-  - PROCESS-NAME,fdm,Domestic
-  - PROCESS-NAME,aria2c,Domestic
-  - PROCESS-NAME,Folx,Domestic
-  - PROCESS-NAME,NetTransport,Domestic
-  - PROCESS-NAME,uTorrent,Domestic
-  - PROCESS-NAME,WebTorrent,Domestic
-  - PROCESS-NAME,aria2c.exe,Domestic
-  - PROCESS-NAME,BitComet.exe,Domestic
-  - PROCESS-NAME,fdm.exe,Domestic
-  - PROCESS-NAME,NetTransport.exe,Domestic
-  - PROCESS-NAME,qbittorrent.exe,Domestic
-  - PROCESS-NAME,Thunder.exe,Domestic
-  - PROCESS-NAME,ThunderVIP.exe,Domestic
-  - PROCESS-NAME,transmission-daemon.exe,Domestic
-  - PROCESS-NAME,transmission-qt.exe,Domestic
-  - PROCESS-NAME,uTorrent.exe,Domestic
-  - PROCESS-NAME,WebTorrent.exe,Domestic
-  - DOMAIN,clash.razord.top,Domestic
-  - DOMAIN,yacd.haishan.me,Domestic
-  - RULE-SET,private,Domestic
-  - RULE-SET,reject,Block
-  - RULE-SET,icloud,Domestic
+  - PROCESS-NAME,WeChat.exe,WeChat  
+  - DOMAIN-SUFFIX,wechat.com,WeChat
+  - PROCESS-NAME,v2ray,DIRECT
+  - PROCESS-NAME,xray,DIRECT
+  - PROCESS-NAME,naive,DIRECT
+  - PROCESS-NAME,trojan,DIRECT
+  - PROCESS-NAME,trojan-go,DIRECT
+  - PROCESS-NAME,ss-local,DIRECT
+  - PROCESS-NAME,privoxy,DIRECT
+  - PROCESS-NAME,leaf,DIRECT
+  - PROCESS-NAME,v2ray.exe,DIRECT
+  - PROCESS-NAME,xray.exe,DIRECT
+  - PROCESS-NAME,naive.exe,DIRECT
+  - PROCESS-NAME,trojan.exe,DIRECT
+  - PROCESS-NAME,trojan-go.exe,DIRECT
+  - PROCESS-NAME,ss-local.exe,DIRECT
+  - PROCESS-NAME,privoxy.exe,DIRECT
+  - PROCESS-NAME,leaf.exe,DIRECT
+  - PROCESS-NAME,Surge,DIRECT
+  - PROCESS-NAME,Surge 2,DIRECT
+  - PROCESS-NAME,Surge 3,DIRECT
+  - PROCESS-NAME,Surge 4,DIRECT
+  - PROCESS-NAME,Surge%202,DIRECT
+  - PROCESS-NAME,Surge%203,DIRECT
+  - PROCESS-NAME,Surge%204,DIRECT
+  - PROCESS-NAME,Thunder,DIRECT
+  - PROCESS-NAME,DownloadService,DIRECT
+  - PROCESS-NAME,qBittorrent,DIRECT
+  - PROCESS-NAME,Transmission,DIRECT
+  - PROCESS-NAME,fdm,DIRECT
+  - PROCESS-NAME,aria2c,DIRECT
+  - PROCESS-NAME,Folx,DIRECT
+  - PROCESS-NAME,NetTransport,DIRECT
+  - PROCESS-NAME,uTorrent,DIRECT
+  - PROCESS-NAME,WebTorrent,DIRECT
+  - PROCESS-NAME,aria2c.exe,DIRECT
+  - PROCESS-NAME,BitComet.exe,DIRECT
+  - PROCESS-NAME,fdm.exe,DIRECT
+  - PROCESS-NAME,NetTransport.exe,DIRECT
+  - PROCESS-NAME,qbittorrent.exe,DIRECT
+  - PROCESS-NAME,Thunder.exe,DIRECT
+  - PROCESS-NAME,ThunderVIP.exe,DIRECT
+  - PROCESS-NAME,transmission-daemon.exe,DIRECT
+  - PROCESS-NAME,transmission-qt.exe,DIRECT
+  - PROCESS-NAME,uTorrent.exe,DIRECT
+  - PROCESS-NAME,WebTorrent.exe,DIRECT
+  - DOMAIN,clash.razord.top,DIRECT
+  - DOMAIN,yacd.haishan.me,DIRECT
+  - RULE-SET,private,DIRECT
+  - RULE-SET,reject,REJECT
+  - RULE-SET,icloud,DIRECT
   - RULE-SET,openai,OpenAi
-  - RULE-SET,apple,Domestic
-  - RULE-SET,google,Domestic
+  - RULE-SET,apple,DIRECT
+  - RULE-SET,google,DIRECT
   - RULE-SET,proxy,Proxy
-  - RULE-SET,direct,Domestic
+  - RULE-SET,direct,DIRECT
   - RULE-SET,wechat,WeChat
   - RULE-SET,telegramcidr,Proxy
-  - GEOIP,LAN,Domestic
-  - GEOIP,CN,Domestic
-  - MATCH,Others
+  - GEOIP,LAN,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,Proxy
