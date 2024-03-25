@@ -76,25 +76,16 @@ proxy-groups:
     type: select
     use:
       - DDK
-  - name: Domestic
-    type: select
-    proxies:
-      - DIRECT
-  - name: Block
-    type: select
-    proxies:
-      - REJECT
-      - DIRECT
   - name: Others
     type: select
     proxies:
       - Proxy
-      - Domestic
+      - DIRECT
 rule-providers:
   wechat:
     type: http
     behavior: domain
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Wechat.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Wechat.yaml"
     path: ./ruleset/wechat.yaml
     interval: 86400
   reject:
@@ -112,7 +103,7 @@ rule-providers:
   openai:
     type: http
     behavior: domain
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/OpenAi.list"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OpenAi.yaml"
     path: ./ruleset/openai.yaml
     interval: 86400
   apple:
@@ -183,8 +174,6 @@ rule-providers:
      interval: 86400
 # 分流规则
 rules:
-  - PROCESS-NAME,WeChat.exe,WeChat  
-  - DOMAIN-SUFFIX,wechat.com,WeChat
   - PROCESS-NAME,v2ray,DIRECT
   - PROCESS-NAME,xray,DIRECT
   - PROCESS-NAME,naive,DIRECT
@@ -243,4 +232,4 @@ rules:
   - RULE-SET,telegramcidr,Proxy
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
-  - MATCH,Proxy
+  - MATCH,Others
