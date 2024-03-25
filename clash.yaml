@@ -84,7 +84,13 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"
     path: ./ruleset/reject.yaml
     interval: 86400
-
+    
+  openai:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/OpenAI.yaml"
+    path: ./ruleset/openai.yaml
+    interval: 86400
   icloud:
     type: http
     behavior: domain
@@ -170,27 +176,10 @@ rule-providers:
     interval: 86400
 # 分流规则
 rules:
-  #OpenAi
-  - DOMAIN-KEYWORD,openai,OpenAi
-  - DOMAIN-SUFFIX,auth0.com,OpenAi
-  - DOMAIN-SUFFIX,challenges.cloudflare.com,OpenAi
-  - DOMAIN-SUFFIX,client-api.arkoselabs.com,OpenAi
-  - DOMAIN-SUFFIX,events.statsigapi.net,OpenAi
-  - DOMAIN-SUFFIX,featuregates.org,OpenAi
-  - DOMAIN-SUFFIX,identrust.com,OpenAi
-  - DOMAIN-SUFFIX,intercom.io,OpenAi
-  - DOMAIN-SUFFIX,intercomcdn.com,OpenAi
-  - DOMAIN-SUFFIX,oaistatic.com,OpenAi
-  - DOMAIN-SUFFIX,oaiusercontent.com,OpenAi
-  - DOMAIN-SUFFIX,openai.com,OpenAi
-  - DOMAIN-SUFFIX,openaiapi-site.azureedge.net,OpenAi
-  - DOMAIN-SUFFIX,sentry.io,OpenAi
-  - DOMAIN-SUFFIX,stripe.com,OpenAi
-
-
   - RULE-SET,applications,DIRECT
   - DOMAIN,clash.razord.top,DIRECT
   - DOMAIN,yacd.haishan.me,DIRECT
+  - RULE-SET,openai,OpenAi
   - RULE-SET,private,DIRECT
   - RULE-SET,reject,REJECT
   - RULE-SET,icloud,DIRECT
