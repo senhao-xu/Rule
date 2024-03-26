@@ -52,7 +52,7 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 proxies:
-  - {name: 🇩🇪 My, server: ddk.ovogood.xyz, port: 40011, client-fingerprint: chrome, type: ss, cipher: chacha20-ietf-poly1305, password: 478f4a9e-5144-4e47-98d9-f11c26171e2b, tfo: false}
+  - {name: Socket5, server: nps.senhao.top, port: 50001, type: socks5, username: xusenhao, password: xuSenHao@}
 proxy-groups:
   - name: AutoSelect
     type: url-test
@@ -66,7 +66,7 @@ proxy-groups:
       - DDK
     proxies:
       - AutoSelect
-      - 🇩🇪 My
+      - Socket5
   - name: OpenAi
     type: select
     filter: "(GPT|美国)"
