@@ -91,6 +91,7 @@ rule-providers:
     url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/OpenAI.yaml"
     path: ./ruleset/openai.yaml
     interval: 86400
+    
   icloud:
     type: http
     behavior: domain
