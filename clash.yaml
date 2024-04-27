@@ -50,28 +50,44 @@ proxy-providers:
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
+      interval: 300 
+  MOJIE:
+    type: http
+    path: ./mojie.yaml
+    url: "https://mojie.me/api/v1/client/subscribe?token=e14c56caa0db73e35ed1ebabda23311e"
+    interval: 3600
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
       interval: 300
 proxies:
-  - {name: Socket5, server: nps.senhao.top, port: 50001, type: socks5, username: xusenhao, password: xuSenHao@}
+  # - {name: PIESAT, server: nps.senhao.top, port: 50012, type: socks5, username: xusenhao, password: xusenhao}
 proxy-groups:
   - name: AutoSelect
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
+    filter: '^((?!剩余|套餐).)*$'
     use:
       - DDK
+      - MOJIE
   - name: Proxy
     type: select
     use:
       - DDK
+      - MOJIE
     proxies:
       - AutoSelect
-      - Socket5
+  # - name: Piesat
+  #   type: select
+  #   proxies:
+  #     - PIESAT
   - name: OpenAi
     type: select
     filter: "(GPT|美国)"
     use:
       - DDK
+      - MOJIE
   - name: Others
     type: select
     proxies:
@@ -91,7 +107,6 @@ rule-providers:
     url: "https://raw.githubusercontent.com/earoftoast/clash-rules/main/OpenAI.yaml"
     path: ./ruleset/openai.yaml
     interval: 86400
-    
   icloud:
     type: http
     behavior: domain
@@ -177,6 +192,11 @@ rule-providers:
     interval: 86400
 # 分流规则
 rules:
+  # - DOMAIN,oa.piesat.cn,Piesat
+  # - IP-CIDR,10.1.34.1/24,Piesat,no-resolve
+  # - IP-CIDR,10.2.16.1/24,Piesat,no-resolve
+  - DOMAIN-SUFFIX,ovosss.com,Proxy
+  - DOMAIN-SUFFIX,wallhaven.cc,Proxy
   - RULE-SET,applications,DIRECT
   - DOMAIN,clash.razord.top,DIRECT
   - DOMAIN,yacd.haishan.me,DIRECT
