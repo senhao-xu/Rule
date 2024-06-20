@@ -41,6 +41,8 @@ dns:
     geoip-code: CN
     ipcidr:
       - 240.0.0.0/4
+proxies:
+  - {name: Socket5, server: nps.senhao.top, port: 50001, type: socks5, username: xusenhao, password: xuSenHao@}
 proxy-providers:
   DDK:
     type: http
