@@ -105,6 +105,13 @@ rule-providers:
     path: ./ruleset/icloud.yaml
     interval: 86400
 
+  OpenAI:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OpenAi.yaml"
+    path: ./ruleset/openai.yaml
+    interval: 86400
+
   apple:
     type: http
     behavior: domain
@@ -183,28 +190,12 @@ rule-providers:
     interval: 86400
 # 分流规则
 rules:
-  - DOMAIN-KEYWORD,openai,OpenAi
-  - DOMAIN,gemini.google.com,OpenAi
-  - DOMAIN-SUFFIX,auth0.com,OpenAi
-  - DOMAIN-SUFFIX,challenges.cloudflare.com,OpenAi
-  - DOMAIN-SUFFIX,chatgpt.com,OpenAi
-  - DOMAIN-SUFFIX,client-api.arkoselabs.com,OpenAi
-  - DOMAIN-SUFFIX,events.statsigapi.net,OpenAi
-  - DOMAIN-SUFFIX,featuregates.org,OpenAi
-  - DOMAIN-SUFFIX,identrust.com,OpenAi
-  - DOMAIN-SUFFIX,intercom.io,OpenAi
-  - DOMAIN-SUFFIX,intercomcdn.com,OpenAi
-  - DOMAIN-SUFFIX,oaistatic.com,OpenAi
-  - DOMAIN-SUFFIX,oaiusercontent.com,OpenAi
-  - DOMAIN-SUFFIX,openai.com,OpenAi
-  - DOMAIN-SUFFIX,openaiapi-site.azureedge.net,OpenAi
-  - DOMAIN-SUFFIX,sentry.io,OpenAi
-  - DOMAIN-SUFFIX,stripe.com,OpenAi
   - DOMAIN-SUFFIX,ovosss.com,Proxy
   - DOMAIN-SUFFIX,wallhaven.cc,Proxy
   - RULE-SET,applications,DIRECT
   - DOMAIN,clash.razord.top,DIRECT
   - DOMAIN,yacd.haishan.me,DIRECT
+  - RULE-SET,openai,OpenAi
   - RULE-SET,private,DIRECT
   - RULE-SET,reject,REJECT
   - RULE-SET,icloud,DIRECT
