@@ -268,7 +268,7 @@ rule-providers:
   Wechat:
     type: http
     behavior: classical
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/WeChat/WeChat_No_Resolve.yaml"
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Wechat.yaml"
     path: ./ruleset/Wechat.yaml
     interval: 86400
     
