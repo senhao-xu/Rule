@@ -5,4 +5,4 @@ payload:
   - IP-CIDR,123.60.213.0/19,no-resolve
   - DOMAIN-SUFFIX,ghproxy.com
   - DOMAIN-SUFFIX,senhao.top
-  - DOMAIN-SUFFIX,linux.do
+
