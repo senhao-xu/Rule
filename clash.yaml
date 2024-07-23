@@ -107,77 +107,92 @@ proxy-groups:
       - DIRECT
       - Proxy
 
+  - name: Netflix
+    type: select
+    hidden: true
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png
+    proxies:
+      - Proxy
+
+  - name: WeChat
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/WeChat.png
+    hidden: true
+    proxies:
+      - DIRECT
+      - Proxy
+
+  - name: Microsoft
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png
+    hidden: true
+    proxies:
+      - DIRECT
+      - Proxy
+
 rule-providers:
 
-  Reject:
+  reject:
     type: http
     behavior: domain
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdvertisingLite/AdvertisingLite_Domain_For_Clash.txt"
-    path: ./ruleset/Reject.txt
-    interval: 86400
-        
-  YouTube:
-    type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.list"
-    path: ./ruleset/YouTube.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/reject.txt"
+    path: ./ruleset/reject.yaml
     interval: 86400
 
-  Netflix:
-    type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.list"
-    path: ./ruleset/Netflix.txt
-    interval: 86400
-    
-  Apple:
-    type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.list"
-    path: ./ruleset/Apple.txt
-    interval: 86400
-
-  Microsoft:
-    type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.list"
-    path: ./ruleset/Microsoft.txt
-    interval: 86400
-
-  BiliBili:
-    type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BiliBili/BiliBili.list"
-    path: ./ruleset/BiliBili.txt
-    interval: 86400
-
-  China:
+  proxy:
     type: http
     behavior: domain
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China_Domain_For_Clash.txt"
-    path: ./ruleset/China.yaml
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/proxy.txt"
+    path: ./ruleset/proxy.yaml
     interval: 86400
 
-  Global:
+  direct:
     type: http
     behavior: domain
-    format: text
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain_For_Clash.txt"
-    path: ./ruleset/Global.yaml
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/direct.txt"
+    path: ./ruleset/direct.yaml
     interval: 86400
 
-  OpenAi:
+  private:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/private.txt"
+    path: ./ruleset/private.yaml
+    interval: 86400
+
+  gfw:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt"
+    path: ./ruleset/gfw.yaml
+    interval: 86400
+
+  tld-not-cn:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/tld-not-cn.txt"
+    path: ./ruleset/tld-not-cn.yaml
+    interval: 86400
+
+  cncidr:
+    type: http
+    behavior: ipcidr
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/cncidr.txt"
+    path: ./ruleset/cncidr.yaml
+    interval: 86400
+
+  lancidr:
+    type: http
+    behavior: ipcidr
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/lancidr.txt"
+    path: ./ruleset/lancidr.yaml
+    interval: 86400
+
+  applications:
     type: http
     behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OpenAi.yaml"
-    path: ./ruleset/OpenAi.yaml
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/applications.txt"
+    path: ./ruleset/applications.yaml
     interval: 86400
 
   CustomProxy:
@@ -194,26 +209,92 @@ rule-providers:
     path: ./ruleset/CustomDomestic.yaml
     interval: 86400
 
+
+
+  OpenAi:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OpenAi.yaml"
+    path: ./ruleset/OpenAi.yaml
+    interval: 86400
+
+  YouTube:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.list"
+    path: ./ruleset/YouTube.yaml
+    interval: 86400
+
+  Netflix:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.list"
+    path: ./ruleset/Netflix.yaml
+    interval: 86400
+    
+  Apple:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.list"
+    path: ./ruleset/Apple.yaml
+    interval: 86400
+
+  Microsoft:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.list"
+    path: ./ruleset/Microsoft.yaml
+    interval: 86400
+
+  BiliBili:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BiliBili/BiliBili.list"
+    path: ./ruleset/BiliBili.yaml
+    interval: 86400
+
   Telegram:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram_No_Resolve.yaml"
     path: ./ruleset/Telegram.yaml
     interval: 86400
+
+  Wechat:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/WeChat/WeChat_No_Resolve.yaml"
+    path: ./ruleset/Wechat.yaml
+    interval: 86400
     
 rules:
-  - RULE-SET,Reject,REJECT,no-resolve
+  #REJECT
+  - RULE-SET,reject,REJECT,no-resolve
+  #APPS
+  - RULE-SET,Wechat,WeChat,no-resolve
   - RULE-SET,Telegram,Telegram,no-resolve
   - RULE-SET,OpenAi,OpenAi,no-resolve
-  - RULE-SET,CustomDomestic,DIRECT,no-resolve
-  - RULE-SET,CustomProxy,Proxy,no-resolve
   - RULE-SET,YouTube,YouTube,no-resolve
-  - RULE-SET,Netflix,Proxy,no-resolve
+  - RULE-SET,Netflix,Netflix,no-resolve
   - RULE-SET,Apple,Apple,no-resolve
-  - RULE-SET,Microsoft,DIRECT,no-resolve
+  - RULE-SET,Microsoft,Microsoft,no-resolve
   - RULE-SET,BiliBili,BiliBili,no-resolve
-  - RULE-SET,Global,Proxy,no-resolve
-  - RULE-SET,China,DIRECT,no-resolve
-  - GEOIP,Lan,DIRECT,no-resolve
+  #DIRECT
+  - RULE-SET,CustomDomestic,DIRECT,no-resolve
+  - RULE-SET,direct,DIRECT,no-resolve
+  - RULE-SET,lancidr,DIRECT,no-resolve
+  - RULE-SET,cncidr,DIRECT,no-resolve
+  - RULE-SET,private,DIRECT,no-resolve
+  - RULE-SET,applications,DIRECT,no-resolve
+  #PROXY
+  - RULE-SET,CustomProxy,Proxy,no-resolve
+  - RULE-SET,proxy,Proxy,no-resolve
+  #OTHERS
+  - GEOIP,LAN,DIRECT,no-resolve
   - GEOIP,CN,DIRECT,no-resolve
   - MATCH,Others
