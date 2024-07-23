@@ -79,18 +79,21 @@ proxy-groups:
 
   - name: Telegram
     type: select
+    hidden: true
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram.png
     proxies:
       - Proxy
 
   - name: YouTube
     type: select
+    hidden: true
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png
     proxies:
       - Proxy
 
   - name: Apple
     type: select
+    hidden: true
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png
     proxies:
       - DIRECT
@@ -98,6 +101,7 @@ proxy-groups:
 
   - name: BiliBili
     type: select
+    hidden: true
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili.png
     proxies:
       - DIRECT
