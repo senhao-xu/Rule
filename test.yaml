@@ -12,7 +12,7 @@ proxy-providers:
   DDK:
     type: http
     path: ./ddk.yaml
-    url: "http://gm.dingyue.cdn.518111.xyz/api/v1/client/subscribe?token=f295d3450ed985e51ed37855fa7f172b"
+    url: "xxx"
     interval: 3600
     health-check:
       enable: true
