@@ -20,34 +20,39 @@ proxy-providers:
       interval: 300
       
 dns:
+  use-hosts: true
   enable: true
+  prefer-h3: true
+  listen: 127.0.0.1:53
   ipv6: false
-  listen: 0.0.0.0:53
   default-nameserver:
-    - 119.29.29.29
     - 223.5.5.5
-  enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
-  fake-ip-filter:
-    - '*.lan'
-    - localhost.ptlogin2.qq.com
-    - '+.srv.nintendo.net'
-    - '+.stun.playstation.net'
-    - '+.msftconnecttest.com'
-    - '+.msftncsi.com'
-    - '+.xboxlive.com'
-    - 'msftconnecttest.com'
-    - 'xbox.*.microsoft.com'
-    - '*.battlenet.com.cn'
-    - '*.battlenet.com'
-    - '*.blzstatic.cn'
-    - '*.battle.net'
+    - 114.114.114.114
+  enhanced-mode: redir-host
+  nameserver-policy:
+    '+.internal.crop.com': '10.0.0.1'
   nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  fallback:
+    - https://1.1.1.1/dns-query
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw
+    ipcidr:
+      - 240.0.0.0/4
+    domain:
+      - '+.google.com'
+      - '+.facebook.com'
+      - '+.youtube.com'
 
 proxies:
-            
+  - {name: hk, server: hk.senhao.top, port: 50000, client-fingerprint: chrome, type: vmess, uuid: 8c7a3c12-c8a5-4edf-aadc-6c0af96ecece, alterId: 0, cipher: auto, tls: true, tfo: false, skip-cert-verify: false, network: ws, ws-opts: {path: /, headers: {Host: hk.senhao.top}}}
 proxy-groups:
   - name: AutoSelect
     type: url-test
@@ -64,12 +69,14 @@ proxy-groups:
       - DDK
     proxies:
       - AutoSelect
+      - hk
   - name: OpenAi
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png
     filter: "(GPT|美国)"
     use:
       - DDK
+
   - name: Others
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png
@@ -77,69 +84,80 @@ proxy-groups:
       - Proxy
       - DIRECT
 
+  - name: YouTube
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png
+    proxies:
+      - Proxy
+
+  - name: Telegram
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram.png
+    proxies:
+      - Proxy
+
+  - name: Google
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google.png
+    proxies:
+      - Proxy
+
+  - name: Github
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png
+    proxies:
+      - Proxy
+
+  - name: Microsoft
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png
+    proxies:
+      - DIRECT
+      - Proxy
+
+  - name: Netflix
+    type: select
+    # hidden: true
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png
+    proxies:
+      - Proxy
+
+  - name: Apple
+    type: select
+    # hidden: true
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png
+    proxies:
+      - DIRECT
+      - Proxy
+
 rule-providers:
 
-  reject:
-    type: http
-    behavior: domain
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/reject.txt"
-    path: ./ruleset/reject.yaml
-    interval: 86400
-
-  proxy:
-    type: http
-    behavior: domain
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/proxy.txt"
-    path: ./ruleset/proxy.yaml
-    interval: 86400
-
-  direct:
-    type: http
-    behavior: domain
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/direct.txt"
-    path: ./ruleset/direct.yaml
-    interval: 86400
-
-  private:
-    type: http
-    behavior: domain
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/private.txt"
-    path: ./ruleset/private.yaml
-    interval: 86400
-
-  gfw:
-    type: http
-    behavior: domain
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt"
-    path: ./ruleset/gfw.yaml
-    interval: 86400
-
-  tld-not-cn:
-    type: http
-    behavior: domain
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/tld-not-cn.txt"
-    path: ./ruleset/tld-not-cn.yaml
-    interval: 86400
-
-  cncidr:
-    type: http
-    behavior: ipcidr
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/cncidr.txt"
-    path: ./ruleset/cncidr.yaml
-    interval: 86400
-
-  lancidr:
-    type: http
-    behavior: ipcidr
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/lancidr.txt"
-    path: ./ruleset/lancidr.yaml
-    interval: 86400
-
-  applications:
+  Reject:
     type: http
     behavior: classical
-    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/applications.txt"
-    path: ./ruleset/applications.yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/BanAD.yaml"
+    path: ./ruleset/BanAD.yaml
+    interval: 86400
+
+  ChinaDomain:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml"
+    path: ./ruleset/ChinaDomain.yaml
+    interval: 86400
+
+  ChinaCompanyIp:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaCompanyIp.yaml"
+    path: ./ruleset/ChinaCompanyIp.yaml
+    interval: 86400
+
+  ProxyLite:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyLite.yaml"
+    path: ./ruleset/ProxyLite.yaml
     interval: 86400
 
   CustomProxy:
@@ -163,21 +181,76 @@ rule-providers:
     path: ./ruleset/OpenAi.yaml
     interval: 86400
 
+  YouTube:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/YouTube.yaml"
+    path: ./ruleset/YouTube.yaml
+    interval: 86400
+
+  Telegram:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Telegram.yaml"
+    path: ./ruleset/Telegram.yaml
+    interval: 86400
+
+  Google:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Google.yaml"
+    path: ./ruleset/Google.yaml
+    interval: 86400
+
+  Github:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Github.yaml"
+    path: ./ruleset/Github.yaml
+    interval: 86400
+
+  Microsoft:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Microsoft.yaml"
+    path: ./ruleset/Microsoft.yaml
+    interval: 86400
+
+  Apple:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Apple.yaml"
+    path: ./ruleset/Apple.yaml
+    interval: 86400
+
+  Netflix:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Netflix.yaml"
+    path: ./ruleset/Netflix.yaml
+    interval: 86400
+    
 rules:
   #REJECT
-  - RULE-SET,reject,REJECT
-  #APPS
+  - RULE-SET,Reject,REJECT
+  #Custom
+  - RULE-SET,Netflix,Netflix
+  - RULE-SET,Apple,Apple
   - RULE-SET,OpenAi,OpenAi
-  #DIRECT
+  - RULE-SET,YouTube,YouTube
+  - RULE-SET,Google,Google
+  - RULE-SET,Microsoft,Microsoft
+  - RULE-SET,Github,Github
+  - RULE-SET,Telegram,Telegram
   - RULE-SET,CustomDomestic,DIRECT
-  - RULE-SET,direct,DIRECT
-  - RULE-SET,lancidr,DIRECT
-  - RULE-SET,cncidr,DIRECT
-  - RULE-SET,private,DIRECT
-  - RULE-SET,applications,DIRECT
+  #DIRECT
+  - RULE-SET,ChinaDomain,DIRECT
+  - RULE-SET,ChinaCompanyIp,DIRECT
   #PROXY
   - RULE-SET,CustomProxy,Proxy
-  - RULE-SET,proxy,Proxy
+  - RULE-SET,ProxyLite,Proxy
   #OTHERS
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
