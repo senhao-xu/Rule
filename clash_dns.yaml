@@ -22,29 +22,26 @@ proxy-providers:
 dns:
   enable: true
   ipv6: false
-  listen: 0.0.0.0:53
-  default-nameserver:
-    - 119.29.29.29
-    - 223.5.5.5
+  prefer-h3: true
+  listen: 0.0.0.0:1053
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-  fake-ip-filter:
-    - '*.lan'
-    - localhost.ptlogin2.qq.com
-    - '+.srv.nintendo.net'
-    - '+.stun.playstation.net'
-    - '+.msftconnecttest.com'
-    - '+.msftncsi.com'
-    - '+.xboxlive.com'
-    - 'msftconnecttest.com'
-    - 'xbox.*.microsoft.com'
-    - '*.battlenet.com.cn'
-    - '*.battlenet.com'
-    - '*.blzstatic.cn'
-    - '*.battle.net'
   nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - tls://1.1.1.1
+    - tls://8.8.8.8
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+  default-nameserver:
+    - tls://1.12.12.12
+    - 223.5.5.5
+  nameserver-policy:
+    geosite:cn:
+      - 223.5.5.5
+      - 119.29.29.29
+  fake-ip-filter:
+    - '+.lan'
+    - '+.local'
+    - '+.example.com'
 
 proxies:
             
