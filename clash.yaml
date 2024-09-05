@@ -153,11 +153,11 @@ rule-providers:
     path: ./ruleset/ChinaCompanyIp.yaml
     interval: 86400
 
-  ProxyLite:
+  ProxyGFWlist:
     type: http
     behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyLite.yaml"
-    path: ./ruleset/ProxyLite.yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyGFWlist.yaml"
+    path: ./ruleset/ProxyGFWlist.yaml
     interval: 86400
 
   CustomProxy:
@@ -250,7 +250,7 @@ rules:
   - RULE-SET,ChinaCompanyIp,DIRECT
   #PROXY
   - RULE-SET,CustomProxy,Proxy
-  - RULE-SET,ProxyLite,Proxy
+  - RULE-SET,ProxyGFWlist,Proxy
   #OTHERS
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
