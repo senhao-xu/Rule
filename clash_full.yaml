@@ -5,15 +5,43 @@ allow-lan: true
 bind-address: '*'
 mode: rule
 log-level: info
-ipv6: true
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
 external-controller: 127.0.0.1:9090
 
+
+# 用于下载订阅时指定UA
+# global-ua: clash
+
+geodata-mode: false
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 48
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+  asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+
+
 proxy-providers:
-  DDK:
+  GM:
     type: http
-    path: ./ddk.yaml
+    path: ./gm.yaml
     url: "xxx"
     interval: 3600
+    proxy: Domestic
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+  MOJIE:
+    type: http
+    path: ./mojie.yaml
+    url: "xxx"
+    interval: 3600
+    proxy: Domestic
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
@@ -21,34 +49,37 @@ proxy-providers:
       
 dns:
   enable: true
+  listen: 0.0.0.0:1053
   ipv6: false
-  listen: 0.0.0.0:53
-  default-nameserver:
-    - 119.29.29.29
-    - 223.5.5.5
+  respect-rules: true
+  # 模式切换 redir-host / fake-ip
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-range: 28.0.0.1/8
+  # 模式切换 whitelist/blacklist 
+  # 黑名单模式表示如果匹配成功则不返回 Fake-IP, 白名单模式时只有匹配成功才返回 Fake-IP
+  fake-ip-filter-mode: blacklist
   fake-ip-filter:
-    - '*.lan'
-    - localhost.ptlogin2.qq.com
-    - '+.srv.nintendo.net'
-    - '+.stun.playstation.net'
-    - '+.msftconnecttest.com'
-    - '+.msftncsi.com'
-    - '+.xboxlive.com'
-    - 'msftconnecttest.com'
-    - 'xbox.*.microsoft.com'
-    - '*.battlenet.com.cn'
-    - '*.battlenet.com'
-    - '*.blzstatic.cn'
-    - '*.battle.net'
+    - "+.lan"
+    - "+.local"
+    - geosite:private
+    - geosite:cn
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  proxy-server-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
   nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
-    - https://dns.google/dns-query
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver-policy:
+    "rule-set:private_domain,china_domain":
+    - 223.5.5.5
+    - 119.29.29.29
+    "rule-set:geolocation-!cn":
+      - "https://dns.cloudflare.com/dns-query"
+      - "https://dns.google/dns-query"
 
-proxies:
-            
 proxy-groups:
   - name: AutoSelect
     type: url-test
@@ -57,300 +88,234 @@ proxy-groups:
     interval: 300
     filter: "(香港|日本|新加坡)"
     use:
-      - DDK
+      - GM
+      - MOJIE
   - name: Proxy
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png
     use:
-      - DDK
+      - GM
+      - MOJIE
     proxies:
       - AutoSelect
 
+  - name: Domestic
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Domestic.png
+    udp: true
+    proxies:
+      - DIRECT
+
+  - name: YouTube
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png
+    proxies:
+      - Proxy
+  
   - name: OpenAi
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png
     filter: "(GPT|美国)"
-    use:
-      - DDK
-
-  - name: Domestic
-    type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png
-    filter: "(GPT|美国)"
     proxies:
-      - DIRECT
+      - Proxy
 
-  - name: Block
+  - name: Telegram
     type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Reject.png
-    filter: "(GPT|美国)"
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram.png
     proxies:
-      - REJECT
+      - Proxy
+
+  - name: Google
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google.png
+    proxies:
+      - Proxy
+
+  - name: Github
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png
+    proxies:
+      - Proxy
+
+  - name: Microsoft
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png
+    proxies:
+      - Domestic
+      - Proxy
+
+  - name: Netflix
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png
+    proxies:
+      - Proxy
+
+  - name: Apple
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png
+    proxies:
+      - Domestic
+      - Proxy
+
+  - name: OneDrive
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png
+    proxies:
+      - Domestic
+      - Proxy
 
   - name: Others
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png
     proxies:
       - Proxy
-      - DIRECT
-
-  - name: Telegram
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram.png
-    proxies:
-      - Proxy
-
-  - name: YouTube
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png
-    proxies:
-      - Proxy
-
-  - name: Apple
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png
-    proxies:
-      - DIRECT
-      - Proxy
-
-  - name: BiliBili
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili.png
-    proxies:
-      - DIRECT
-      - Proxy
-
-  - name: Netflix
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png
-    proxies:
-      - Proxy
-
-  - name: Google
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google.png
-    proxies:
-      - Proxy
-
-  - name: Microsoft
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png
-    proxies:
-      - DIRECT
-      - Proxy
-
-  - name: Steam
-    type: select
-    hidden: true
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Steam.png
-    proxies:
-      - DIRECT
-      - Proxy
+      - Domestic
 
 rule-providers:
-
-  LocalAreaNetwork:
+  private_domain:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
-    path: ./ruleset/LocalAreaNetwork.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs"
+    path: ./ruleset/private_domain.mrs
     interval: 86400
 
-  UnBan:
+  china_domain:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
-    path: ./ruleset/UnBan.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+    path: ./ruleset/china_domain.mrs
     interval: 86400
 
-  BanAD:
+  china_ip:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
-    path: ./ruleset/BanAD.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
+    path: ./ruleset/china_ip.mrs
     interval: 86400
 
-  BanProgramAD:
+  proxy_gfw_list:
     type: http
     behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
-    path: ./ruleset/BanProgramAD.yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyGFWlist.yaml"
+    path: ./ruleset/proxy_gfw_list.yaml
     interval: 86400
 
-  GoogleFCM:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/GoogleFCM.list"
-    path: ./ruleset/GoogleFCM.yaml
-    interval: 86400
-
-  GoogleCN:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
-    path: ./ruleset/GoogleCN.yaml
-    interval: 86400
-
-  SteamCN:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list"
-    path: ./ruleset/SteamCN.yaml
-    interval: 86400
-
-  Bing:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Bing.list"
-    path: ./ruleset/Bing.yaml
-    interval: 86400
-
-  OneDrive:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/OneDrive.list"
-    path: ./ruleset/OneDrive.yaml
-    interval: 86400
-
-  ChinaMedia:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list"
-    path: ./ruleset/ChinaMedia.yaml
-    interval: 86400 
-
-  ProxyMedia:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyMedia.list"
-    path: ./ruleset/ProxyMedia.yaml
-    interval: 86400 
-
-  ChinaDomain:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
-    path: ./ruleset/ChinaDomain.yaml
-    interval: 86400 
-
-  ChinaCompanyIp:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
-    path: ./ruleset/ChinaCompanyIp.yaml
-    interval: 86400 
-
-  Download:
-    type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Download.list"
-    path: ./ruleset/Download.yaml
-    interval: 86400 
-
-  CustomProxy:
+  custom_proxy:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/senhao-xu/Rule/master/Clash/proxy.yaml"
-    path: ./ruleset/CustomProxy.yaml
+    path: ./ruleset/custom_proxy.yaml
     interval: 86400
 
-  CustomDomestic:
+  custom_domestic:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/senhao-xu/Rule/master/Clash/domestic.yaml"
-    path: ./ruleset/CustomDomestic.yaml
+    path: ./ruleset/custom_domestic.yaml
     interval: 86400
 
-  OpenAi:
+  open_ai:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OpenAi.yaml"
-    path: ./ruleset/OpenAi.yaml
+    path: ./ruleset/open_ai.yaml
     interval: 86400
 
-  YouTube:
+  youtube:
     type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/YouTube.yaml"
-    path: ./ruleset/YouTube.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs"
+    path: ./ruleset/youtube.mrs
     interval: 86400
 
-  Netflix:
+  telegram:
     type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Netflix.yaml"
-    path: ./ruleset/Netflix.yaml
-    interval: 86400
-    
-  Apple:
-    type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Apple.yaml"
-    path: ./ruleset/Apple.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs"
+    path: ./ruleset/telegram.mrs
     interval: 86400
 
-  Microsoft:
+  google:
     type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Microsoft.yaml"
-    path: ./ruleset/Microsoft.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"
+    path: ./ruleset/google.mrs
     interval: 86400
 
-  BiliBili:
+  github:
     type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Bilibili.yaml"
-    path: ./ruleset/BiliBili.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs"
+    path: ./ruleset/github.mrs
     interval: 86400
 
-  Telegram:
+  microsoft:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Telegram.yaml"
-    path: ./ruleset/Telegram.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"
+    path: ./ruleset/microsoft.mrs
+    interval: 86400
+
+  apple:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs"
+    path: ./ruleset/apple.mrs
+    interval: 86400
+
+  netflix:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs"
+    path: ./ruleset/netflix.mrs
+    interval: 86400
+
+  onedrive:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs"
+    path: ./ruleset/onedrive.mrs
+    interval: 86400
+
+  geolocation-!cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
+    path: ./ruleset/geolocation-!cn.mrs
     interval: 86400
     
 rules:
-  #REJECT
-  - RULE-SET,BanAD,Block
-  - RULE-SET,BanProgramAD,Block
-  
-  #APPS
-  - RULE-SET,Telegram,Telegram
-  - RULE-SET,OpenAi,OpenAi
-  - RULE-SET,YouTube,YouTube
-  - RULE-SET,Netflix,Netflix
-  - RULE-SET,Apple,Apple
-  - RULE-SET,Microsoft,Microsoft
-  - RULE-SET,Bing,Microsoft
-  - RULE-SET,OneDrive,Microsoft
-  - RULE-SET,BiliBili,BiliBili
-  - RULE-SET,GoogleFCM,Google
-  - RULE-SET,GoogleCN,Google
-  - RULE-SET,SteamCN,Steam
-  - RULE-SET,ProxyMedia,Proxy
-  
-  - RULE-SET,ChinaMedia,Domestic
-  - RULE-SET,ChinaDomain,Domestic
-  - RULE-SET,ChinaCompanyIp,Domestic
-  - RULE-SET,Download,Domestic
-  #Domestic
-  - RULE-SET,CustomDomestic,Domestic
-  #PROXY
-  - RULE-SET,CustomProxy,Proxy
-  #OTHERS
+  - RULE-SET,private_domain,Domestic
+  - RULE-SET,onedrive,OneDrive
+  - RULE-SET,netflix,Netflix
+  - RULE-SET,apple,Apple
+  - RULE-SET,open_ai,OpenAi
+  - RULE-SET,youtube,YouTube
+  - RULE-SET,google,Google
+  - RULE-SET,microsoft,Microsoft
+  - RULE-SET,github,Github
+  - RULE-SET,telegram,Telegram
+  - RULE-SET,geolocation-!cn,Proxy
+
+  - RULE-SET,custom_domestic,Domestic
+  - RULE-SET,china_domain,Domestic
+
+  - RULE-SET,custom_proxy,Proxy
+  - RULE-SET,proxy_gfw_list,Proxy
+
+  - RULE-SET,china_ip,Domestic
   - GEOIP,LAN,Domestic
   - GEOIP,CN,Domestic
   - MATCH,Others
