@@ -304,8 +304,8 @@ rules:
   - RULE-SET,open_ai,OpenAi
   - RULE-SET,youtube,YouTube
   - RULE-SET,google,Google
-  - RULE-SET,microsoft,Microsoft
   - RULE-SET,github,Github
+  - RULE-SET,microsoft,Microsoft
   - RULE-SET,telegram,Telegram
   - RULE-SET,geolocation-!cn,Proxy
 
