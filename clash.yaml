@@ -5,15 +5,43 @@ allow-lan: true
 bind-address: '*'
 mode: rule
 log-level: info
-ipv6: true
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
 external-controller: 127.0.0.1:9090
 
+
+# 用于下载订阅时指定UA
+# global-ua: clash
+
+geodata-mode: false
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 48
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+  asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+
+
 proxy-providers:
-  DDK:
+  GM:
     type: http
-    path: ./ddk.yaml
+    path: ./gm.yaml
     url: "xxx"
     interval: 3600
+    proxy: Domestic
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+  MOJIE:
+    type: http
+    path: ./mojie.yaml
+    url: "xxx"
+    interval: 3600
+    proxy: Domestic
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
@@ -21,30 +49,37 @@ proxy-providers:
       
 dns:
   enable: true
-  ipv6: false
-  prefer-h3: true
   listen: 0.0.0.0:1053
+  ipv6: false
+  respect-rules: true
+  # 模式切换 redir-host / fake-ip
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
-  nameserver:
-    - tls://1.1.1.1
-    - tls://8.8.8.8
-    - https://dns.cloudflare.com/dns-query
-    - https://dns.google/dns-query
-  default-nameserver:
-    - tls://1.12.12.12
-    - 223.5.5.5
-  nameserver-policy:
-    geosite:cn:
-      - 223.5.5.5
-      - 119.29.29.29
+  fake-ip-range: 28.0.0.1/8
+  # 模式切换 whitelist/blacklist 
+  # 黑名单模式表示如果匹配成功则不返回 Fake-IP, 白名单模式时只有匹配成功才返回 Fake-IP
+  fake-ip-filter-mode: blacklist
   fake-ip-filter:
-    - '+.lan'
-    - '+.local'
-    - '+.example.com'
+    - "+.lan"
+    - "+.local"
+    - geosite:private
+    - geosite:cn
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  proxy-server-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver-policy:
+    "rule-set:private_domain,china_domain":
+    - 223.5.5.5
+    - 119.29.29.29
+    "rule-set:geolocation-!cn":
+      - "https://dns.cloudflare.com/dns-query"
+      - "https://dns.google/dns-query"
 
-proxies:
-  - {name: hk, server: hk.senhao.top, port: 50000, client-fingerprint: chrome, type: vmess, uuid: 8c7a3c12-c8a5-4edf-aadc-6c0af96ecece, alterId: 0, cipher: auto, tls: true, tfo: false, skip-cert-verify: false, network: ws, ws-opts: {path: /, headers: {Host: hk.senhao.top}}}
 proxy-groups:
   - name: AutoSelect
     type: url-test
@@ -53,32 +88,34 @@ proxy-groups:
     interval: 300
     filter: "(香港|日本|新加坡)"
     use:
-      - DDK
+      - GM
+      - MOJIE
   - name: Proxy
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png
     use:
-      - DDK
+      - GM
+      - MOJIE
     proxies:
       - AutoSelect
-      - hk
-  - name: OpenAi
-    type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png
-    filter: "(GPT|美国)"
-    use:
-      - DDK
 
-  - name: Others
+  - name: Domestic
     type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png
+    icon: https://raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Domestic.png
+    udp: true
     proxies:
-      - Proxy
       - DIRECT
 
   - name: YouTube
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png
+    proxies:
+      - Proxy
+  
+  - name: OpenAi
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png
+    filter: "(GPT|美国)"
     proxies:
       - Proxy
 
@@ -104,146 +141,181 @@ proxy-groups:
     type: select
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png
     proxies:
-      - DIRECT
+      - Domestic
       - Proxy
 
   - name: Netflix
     type: select
-    # hidden: true
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png
     proxies:
       - Proxy
 
   - name: Apple
     type: select
-    # hidden: true
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png
     proxies:
-      - DIRECT
+      - Domestic
       - Proxy
 
+  - name: OneDrive
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png
+    proxies:
+      - Domestic
+      - Proxy
+
+  - name: Others
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png
+    proxies:
+      - Proxy
+      - Domestic
+
 rule-providers:
-
-  Reject:
+  private_domain:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/BanAD.yaml"
-    path: ./ruleset/BanAD.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs"
+    path: ./ruleset/private_domain.mrs
     interval: 86400
 
-  ChinaDomain:
+  china_domain:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml"
-    path: ./ruleset/ChinaDomain.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+    path: ./ruleset/china_domain.mrs
     interval: 86400
 
-  ChinaCompanyIp:
+  china_ip:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaCompanyIp.yaml"
-    path: ./ruleset/ChinaCompanyIp.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
+    path: ./ruleset/china_ip.mrs
     interval: 86400
 
-  ProxyGFWlist:
+  proxy_gfw_list:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyGFWlist.yaml"
-    path: ./ruleset/ProxyGFWlist.yaml
+    path: ./ruleset/proxy_gfw_list.yaml
     interval: 86400
 
-  CustomProxy:
+  custom_proxy:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/senhao-xu/Rule/master/Clash/proxy.yaml"
-    path: ./ruleset/CustomProxy.yaml
+    path: ./ruleset/custom_proxy.yaml
     interval: 86400
 
-  CustomDomestic:
+  custom_domestic:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/senhao-xu/Rule/master/Clash/domestic.yaml"
-    path: ./ruleset/CustomDomestic.yaml
+    path: ./ruleset/custom_domestic.yaml
     interval: 86400
 
-  OpenAi:
+  open_ai:
     type: http
     behavior: classical
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OpenAi.yaml"
-    path: ./ruleset/OpenAi.yaml
+    path: ./ruleset/open_ai.yaml
     interval: 86400
 
-  YouTube:
+  youtube:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/YouTube.yaml"
-    path: ./ruleset/YouTube.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs"
+    path: ./ruleset/youtube.mrs
     interval: 86400
 
-  Telegram:
+  telegram:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Telegram.yaml"
-    path: ./ruleset/Telegram.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs"
+    path: ./ruleset/telegram.mrs
     interval: 86400
 
-  Google:
+  google:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Google.yaml"
-    path: ./ruleset/Google.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"
+    path: ./ruleset/google.mrs
     interval: 86400
 
-  Github:
+  github:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Github.yaml"
-    path: ./ruleset/Github.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs"
+    path: ./ruleset/github.mrs
     interval: 86400
 
-  Microsoft:
+  microsoft:
     type: http
-    behavior: classical
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Microsoft.yaml"
-    path: ./ruleset/Microsoft.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"
+    path: ./ruleset/microsoft.mrs
     interval: 86400
 
-  Apple:
+  apple:
     type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Apple.yaml"
-    path: ./ruleset/Apple.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs"
+    path: ./ruleset/apple.mrs
     interval: 86400
 
-  Netflix:
+  netflix:
     type: http
-    behavior: classical
-    format: text
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Netflix.yaml"
-    path: ./ruleset/Netflix.yaml
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs"
+    path: ./ruleset/netflix.mrs
+    interval: 86400
+
+  onedrive:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs"
+    path: ./ruleset/onedrive.mrs
+    interval: 86400
+
+  geolocation-!cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
+    path: ./ruleset/geolocation-!cn.mrs
     interval: 86400
     
 rules:
-  #REJECT
-  - RULE-SET,Reject,REJECT
-  #Custom
-  - RULE-SET,Netflix,Netflix
-  - RULE-SET,Apple,Apple
-  - RULE-SET,OpenAi,OpenAi
-  - RULE-SET,YouTube,YouTube
-  - RULE-SET,Google,Google
-  - RULE-SET,Microsoft,Microsoft
-  - RULE-SET,Github,Github
-  - RULE-SET,Telegram,Telegram
-  - RULE-SET,CustomDomestic,DIRECT
-  #DIRECT
-  - RULE-SET,ChinaDomain,DIRECT
-  - RULE-SET,ChinaCompanyIp,DIRECT
-  #PROXY
-  - RULE-SET,CustomProxy,Proxy
-  - RULE-SET,ProxyGFWlist,Proxy
-  #OTHERS
-  - GEOIP,LAN,DIRECT
-  - GEOIP,CN,DIRECT
+  - RULE-SET,private_domain,Domestic
+  - RULE-SET,onedrive,OneDrive
+  - RULE-SET,netflix,Netflix
+  - RULE-SET,apple,Apple
+  - RULE-SET,open_ai,OpenAi
+  - RULE-SET,youtube,YouTube
+  - RULE-SET,google,Google
+  - RULE-SET,github,Github
+  - RULE-SET,microsoft,Microsoft
+  - RULE-SET,telegram,Telegram
+  - RULE-SET,geolocation-!cn,Proxy
+
+  - RULE-SET,custom_domestic,Domestic
+  - RULE-SET,china_domain,Domestic
+
+  - RULE-SET,custom_proxy,Proxy
+  - RULE-SET,proxy_gfw_list,Proxy
+
+  - RULE-SET,china_ip,Domestic
+  - GEOIP,LAN,Domestic
+  - GEOIP,CN,Domestic
   - MATCH,Others
