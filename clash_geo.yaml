@@ -23,8 +23,8 @@ geox-url:
 proxy-providers:
   P1:
     type: http
-    path: ./p1.yaml
-    url: "xxx"
+    path: ./gougou.yaml
+    url: "https://gougou.fff.so/api/v1/client/subscribe?token=b511ebde64207c4902a2ab87b1a35334"
     interval: 3600
     proxy: DIRECT
     health-check:
@@ -98,6 +98,13 @@ proxy-groups:
     proxies:
       - Proxy
 
+  - name: Others
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png
+    proxies:
+      - Proxy
+      - DIRECT
+
 domain_rule: &domain_rule
   type: http
   behavior: domain
@@ -116,6 +123,8 @@ rule-providers:
 
     
 rules:
+  - DOMAIN-SUFFIX,linux.do,DIRECT
+
   - DOMAIN-SUFFIX,steamserver.net,DIRECT
   - GEOSITE,private,DIRECT
   - RULE-SET,reject-list,REJECT
@@ -135,4 +144,4 @@ rules:
   - GEOIP,telegram,Proxy,no-resolve
   - GEOIP,lan,DIRECT
   - GEOIP,cn,DIRECT
-  - MATCH,Proxy
+  - MATCH,Others
