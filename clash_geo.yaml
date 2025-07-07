@@ -1,0 +1,138 @@
+mixed-port: 7890
+allow-lan: true
+bind-address: '*'
+mode: rule
+log-level: info
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+external-controller: 127.0.0.1:9090
+
+
+# 用于下载订阅时指定UA
+global-ua: clash
+
+geodata-mode: true
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 48
+geox-url:
+  geosite: "https://testingcf.jsdelivr.net/gh/v2fly/domain-list-community@release/dlc.dat"
+
+
+proxy-providers:
+  P1:
+    type: http
+    path: ./p1.yaml
+    url: "xxx"
+    interval: 3600
+    proxy: DIRECT
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      
+dns:
+  enable: true
+  ipv6: false
+  respect-rules: true
+  # 模式切换 redir-host / fake-ip
+  enhanced-mode: fake-ip
+  fake-ip-range: 28.0.0.1/8
+  # 模式切换 whitelist/blacklist 
+  # 黑名单模式表示如果匹配成功则不返回 Fake-IP, 白名单模式时只有匹配成功才返回 Fake-IP
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "+.lan"
+    - "+.local"
+    - 'rule-set:fake-ip-filter'
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - 114.114.114.114
+  direct-nameserver:
+    - https://doh.pub/dns-query
+    - https://223.5.5.5/dns-query
+    - https://doh.360.cn/dns-query
+  proxy-server-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - 114.114.114.114
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - 114.114.114.114
+  nameserver-policy:
+    "GEOSITE:private,geolocation-cn":
+    - 223.5.5.5
+    - 119.29.29.29
+    - 114.114.114.114
+    "GEOSITE:geolocation-!cn":
+     - "https://dns.cloudflare.com/dns-query"
+     - "https://dns.google/dns-query"
+
+proxy-groups:
+  - name: AutoSelect
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png
+    interval: 300
+    filter: "(香港|日本|新加坡)"
+    use:
+      - P1
+
+  - name: Proxy
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png
+    use:
+      - P1
+    proxies:
+      - AutoSelect
+
+  - name: OpenAi
+    type: select
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png
+    filter: "(GPT|美国)"
+    use:
+      - P1
+    proxies:
+      - Proxy
+
+domain_rule: &domain_rule
+  type: http
+  behavior: domain
+  format: text
+  interval: 86400
+
+rule-providers:
+  reject-list:
+    <<: *domain_rule
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/reject-list.txt
+    path: ./ruleset/reject-list.txt
+  fake-ip-filter:
+    <<: *domain_rule
+    url: https://cdn.jsdelivr.net/gh/juewuy/ShellCrash@dev/public/fake_ip_filter.list
+    path: ./ruleset/fake_ip_filter.list
+
+    
+rules:
+  - DOMAIN-SUFFIX,steamserver.net,DIRECT
+  - GEOSITE,private,DIRECT
+  - RULE-SET,reject-list,REJECT
+
+  - GEOSITE,category-ai-!cn,OpenAi
+  - GEOSITE,category-pt,DIRECT
+  - GEOSITE,category-public-tracker,DIRECT
+  - GEOSITE,category-number-verification-cn,DIRECT
+  - GEOSITE,category-speedtest,Proxy
+
+  - GEOSITE,geolocation-!cn@cn,DIRECT # DIRECT 为直连分组，可以改为你自己的分组
+  - GEOSITE,geolocation-!cn,Proxy     # PROXY 为代理分组，可以改为你自己的分组
+  - GEOSITE,geolocation-cn@!cn,Proxy
+  - GEOSITE,geolocation-cn,DIRECT
+  - GEOSITE,tld-cn,DIRECT
+
+  - GEOIP,telegram,Proxy,no-resolve
+  - GEOIP,lan,DIRECT
+  - GEOIP,cn,DIRECT
+  - MATCH,Proxy
