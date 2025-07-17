@@ -123,27 +123,31 @@ rule-providers:
     url: https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/reject-list.txt
     path: ./ruleset/reject-list.txt
 
-    
 rules:
-  # - DOMAIN-SUFFIX,linux.do,DIRECT
-
-  - DOMAIN-SUFFIX,steamserver.net,DIRECT
+  - DOMAIN-SUFFIX,senhao.xyz,DIRECT
+  
+  - GEOSITE,category-ads-all,REJECT
   - GEOSITE,private,DIRECT
-  - RULE-SET,reject-list,REJECT
-
+  - GEOSITE,youtube,Proxy
+  - GEOSITE,google,Proxy
+  - GEOSITE,github,Proxy
+  - GEOSITE,twitter,Proxy
+  - GEOSITE,pixiv,Proxy
+  - GEOSITE,category-scholar-!cn,Proxy
   - GEOSITE,category-ai-!cn,OpenAi
-  - GEOSITE,category-pt,DIRECT
-  - GEOSITE,category-public-tracker,DIRECT
-  - GEOSITE,category-number-verification-cn,DIRECT
-  - GEOSITE,category-speedtest,Proxy
+  - GEOSITE,biliintl,Proxy
+  - GEOSITE,onedrive,DIRECT
+  - GEOSITE,microsoft,DIRECT
+  - GEOSITE,apple-cn,DIRECT
+  - GEOSITE,steam@cn,DIRECT
+  - GEOSITE,category-games@cn,DIRECT
+  - GEOSITE,geolocation-!cn,Proxy
+  - GEOSITE,cn,DIRECT
 
-  - GEOSITE,geolocation-!cn@cn,DIRECT # DIRECT 为直连分组，可以改为你自己的分组
-  - GEOSITE,geolocation-!cn,Proxy     # PROXY 为代理分组，可以改为你自己的分组
-  - GEOSITE,geolocation-cn@!cn,Proxy
-  - GEOSITE,geolocation-cn,DIRECT
-  - GEOSITE,tld-cn,DIRECT
-
+  #GEOIP 规则
+  - GEOIP,private,DIRECT,no-resolve
   - GEOIP,telegram,Proxy,no-resolve
-  - GEOIP,lan,DIRECT
-  - GEOIP,cn,DIRECT
+  - GEOIP,google,Proxy,no-resolve
+  - GEOIP,lan,DIRECT,no-resolve
+  - GEOIP,CN,DIRECT
   - MATCH,Others
