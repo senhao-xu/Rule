@@ -22,6 +22,7 @@ geox-url:
 
 # 组策略-管理面板-网络-DNS客户端-禁用智能多宿主名称解析（修改为已启用）
 # chrome://flags/ - Experimental QUIC protocol - 关闭   （关闭quic-udp）
+# 开启TUN模式中的严格路由
 dns:
   enable: true
   listen: 0.0.0.0:1053
