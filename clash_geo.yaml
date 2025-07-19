@@ -25,36 +25,36 @@ geox-url:
 # 开启TUN模式中的严格路由
 dns:
   enable: true
-  listen: 0.0.0.0:1053
-  # ipv6: true  # 根据需要取消注释
+  listen: 0.0.0.0:53
+  ipv6: false
   prefer-h3: false
   respect-rules: true
   use-system-hosts: false
   cache-algorithm: arc
+  cache-size: 2048
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
-    - '+.lan'
-    - '+.local'
-    - '+.msftconnecttest.com'
-    - '+.msftncsi.com'
-    - 'localhost.ptlogin2.qq.com'
-    - 'localhost.sec.qq.com'
-    - 'localhost.work.weixin.qq.com'
+    - '*.senhao.xyz'
+    - 'geosite:private'
+    - 'geosite:cn'
+    - 'geosite:geolocation-!cn'
   default-nameserver:
     - 223.5.5.5
     - 1.2.4.8
+# 默认的域名解析服务器，如不配置 fallback/proxy-server-nameserver , 则所有域名都由 nameserver 解析
   nameserver:
-    - https://cloudflare-dns.com/dns-query # CloudflareDNS
-    - https://77.88.8.8/dns-query # YandexDNS
-    - 'https://8.8.4.4/dns-query#ecs=1.1.1.1/24&ecs-override=true' # GoogleDNS (带 ECS)
-    - 'https://208.67.222.222/dns-query#ecs=1.1.1.1/24&ecs-override=true' # OpenDNS (带 ECS)
+    - https://cloudflare-dns.com/dns-query#Proxy # CloudflareDNS
+    - https://8.8.8.8/dns-query#Proxy # Google公共DNS
+    - https://8.8.4.4/dns-query#Proxy # Google公共DNS
+# 代理节点域名解析服务器，仅用于解析代理节点的域名
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query # 阿里DoH
     - https://doh.pub/dns-query # 腾讯DoH
   direct-nameserver:
     - https://223.5.5.5/dns-query # 阿里DoH
     - https://doh.pub/dns-query # 腾讯DoH
+# 指定域名查询的解析服务器，可使用 geosite, 优先于 nameserver/fallback 查询
   direct-nameserver-follow-policy: false
   nameserver-policy:
     'geosite:cn':
