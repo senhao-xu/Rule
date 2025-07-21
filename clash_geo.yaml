@@ -121,7 +121,7 @@ rule-providers:
 
 rules:
   - DOMAIN-SUFFIX,senhao.xyz,DIRECT
-  
+  - RULE-SET,reject-list,REJECT
   - GEOSITE,category-ads-all,REJECT
   - GEOSITE,private,DIRECT
   - GEOSITE,youtube,Proxy
