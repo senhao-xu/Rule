@@ -107,6 +107,7 @@ proxy-groups:
       - Proxy
       - DIRECT
 
+# https://clash.wiki/premium/rule-providers.html
 rule-providers:
   reject-list:
     type: http
