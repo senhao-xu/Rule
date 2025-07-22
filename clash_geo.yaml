@@ -144,6 +144,8 @@ rules:
   - GEOIP,private,DIRECT,no-resolve
   - GEOIP,telegram,Proxy,no-resolve
   - GEOIP,google,Proxy,no-resolve
+  - GEOIP,cloudflare,Proxy,no-resolve
+  - GEOIP,cloudfront,Proxy,no-resolve
   - GEOIP,lan,DIRECT,no-resolve
   - GEOIP,CN,DIRECT
   - MATCH,Others
