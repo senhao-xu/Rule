@@ -107,17 +107,14 @@ proxy-groups:
       - Proxy
       - DIRECT
 
-domain_rule: &domain_rule
-  type: http
-  behavior: domain
-  format: text
-  interval: 86400
-
 rule-providers:
   reject-list:
-    <<: *domain_rule
-    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/reject-list.txt
-    path: ./ruleset/reject-list.txt
+    type: http
+    behavior: domain
+    format: text
+    url: "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/reject-list.txt"
+    path: ./ruleset/reject-list.yaml
+    interval: 86400
 
 rules:
   - DOMAIN-SUFFIX,senhao.xyz,DIRECT
