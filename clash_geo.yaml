@@ -17,8 +17,10 @@ geodata-loader: standard
 geo-auto-update: true
 geo-update-interval: 48
 geox-url:
-  geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
-  geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geoip: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat
+  geosite: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat
+  mmdb: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb
+  asn: https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb
 
 # 组策略-管理面板-网络-DNS客户端-禁用智能多宿主名称解析（修改为已启用）
 # chrome://flags/ - Experimental QUIC protocol - 关闭   （关闭quic-udp）
