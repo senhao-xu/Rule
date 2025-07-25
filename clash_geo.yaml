@@ -65,17 +65,20 @@ dns:
 
 proxies:
 
-proxy-providers:
-  gougou:
+domain_proxy: &domain_proxy
     type: http
-    path: ./gougou.yaml
-    url: "xxx"
     interval: 3600
-    proxy: DIRECT
     health-check:
       enable: true
       url: http://www.gstatic.com/generate_204
       interval: 300
+
+proxy-providers:
+  
+  p1:
+    <<: *domain_proxy
+    url: "http://127.0.0.1:38324/download/node?target=ClashMeta"
+    proxy: DIRECT
 
 
 # mihomo party 覆写部分 ↓
