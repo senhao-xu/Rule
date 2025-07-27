@@ -3,29 +3,39 @@
  * Clash Verge Rev 全局扩展脚本（懒人配置）/ Mihomo Party 覆写脚本
  * URL: https://github.com/wanswu/my-backup
  */
+const providersOptions = {
+    "type": "http",
+    "interval": 3600,
+    "health-check": {
+      "enable": true,
+      "url": "http://www.gstatic.com/generate_204",
+      "interval": 300
+    }
+}
 
 // 多订阅合并，这里添加额外的地址
-// const proxyProviders = {
-//   "p1": {
-//     "type": "http",
-//     // 订阅 链接
-//     "url": "https://baidu.com",
-//     // 自动更新时间 86400(秒) / 3600 = 24小时
-//     "interval": 86400,
-//     "override": {
-//       // 节点名称前缀 p1，用于区别机场节点
-//       "additional-prefix": "p1 |"
-//     }
-//   },
-//   "p2": {
-//     "type": "http",
-//     "url": "https://google.com",
-//     "interval": 86400,
-//     "override": {
-//       "additional-prefix": "p2 |"
-//     }
-//   },
-// }
+const proxyProviders = {
+  "node": {
+    ...providersOptions,
+    // 订阅 链接
+    "url": "http://127.0.0.1:38324/download/node?target=ClashMeta",
+    // 自动更新时间 86400(秒) / 3600 = 24小时
+    "override": {
+      // 节点名称前缀 p1，用于区别机场节点
+      "additional-prefix": "node | "
+    }
+  },
+  "dynamic": {
+    ...providersOptions,
+    // 订阅 链接
+    "url": "xxx",
+    // 自动更新时间 86400(秒) / 3600 = 24小时
+    "override": {
+      // 节点名称前缀 p1，用于区别机场节点
+      "additional-prefix": "dynamic | "
+    }
+  },
+}
 
 // 程序入口
 function main(config) {
@@ -40,7 +50,7 @@ function main(config) {
   // 合并而非覆盖
   config["proxy-providers"] = {
     ...originalProviders,  // 保留原有配置
-    // ...proxyProviders       // 合并新配置（同名则覆盖）
+    ...proxyProviders       // 合并新配置（同名则覆盖）
   };
   // 覆盖原配置中DNS配置
   config["dns"] = dnsConfig;
