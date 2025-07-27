@@ -68,40 +68,40 @@ const dnsConfig = {
   "prefer-h3": false,
   "respect-rules": true,
   "use-system-hosts": false,
-  "cache-algorithm": arc,
-  "cache-size": "2048",
+  "cache-algorithm": "arc",
+  "cache-size": 2048,
   "enhanced-mode": "fake-ip",
   "fake-ip-range": "198.18.0.1/16",
   "fake-ip-filter": [
-    - '*.senhao.xyz',
-    - 'geosite:private',
-    - 'geosite:cn',
-    - 'geosite:geolocation-!cn'
+    "*.senhao.xyz",
+    "geosite:private",
+    "geosite:cn",
+    "geosite:geolocation-!cn"
   ],
   "default-nameserver": [
-    - "223.5.5.5",
-    - "1.2.4.8"
+    "223.5.5.5",
+    "1.2.4.8"
   ],
 // 默认的域名解析服务器，如不配置 fallback/proxy-server-nameserver , 则所有域名都由 nameserver 解析
   "nameserver": [
-    - "https://cloudflare-dns.com/dns-query#Proxy", // CloudflareDNS
-    - "https://8.8.8.8/dns-query#Proxy" // Google公共DNS
+    "https://cloudflare-dns.com/dns-query#Proxy", // CloudflareDNS
+    "https://8.8.8.8/dns-query#Proxy" // Google公共DNS
   ],
 // 代理节点域名解析服务器，仅用于解析代理节点的域名
   "proxy-server-nameserver": [
-    - "https://223.5.5.5/dns-query", // 阿里DoH
-    - "https://doh.pub/dns-query" // 腾讯DoH
+    "https://223.5.5.5/dns-query", // 阿里DoH
+    "https://doh.pub/dns-query" // 腾讯DoH
   ],
   "direct-nameserver": [
-    - "https://223.5.5.5/dns-query", // 阿里DoH
-    - "https://doh.pub/dns-query" // 腾讯DoH
+    "https://223.5.5.5/dns-query", // 阿里DoH
+    "https://doh.pub/dns-query" // 腾讯DoH
   ],
 // 指定域名查询的解析服务器，可使用 geosite, 优先于 nameserver/fallback 查询
-  "direct-nameserver-follow-policy": "false",
+  "direct-nameserver-follow-policy": false,
   "nameserver-policy": {
     'geosite:cn': [
-      - "https://223.5.5.5/dns-query",
-      - "https://doh.pub/dns-query"
+      "https://223.5.5.5/dns-query",
+      "https://doh.pub/dns-query"
     ]
   }
 };
@@ -128,7 +128,6 @@ const proxyGroupConfig = [
     {
       "name": "OpenAi", 
       "type": "select", 
-      "hidden": false, 
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png",
       "filter": "(GPT|美国)",
       "include-all": true 
@@ -137,21 +136,18 @@ const proxyGroupConfig = [
       "name": "Others", 
       "type": "select", 
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png",
-      "proxies": ["Proxy", "Domestic"]
+      "proxies": ["Proxy", "DIRECT"]
     },
 
 ];
 
-
-
 // 规则集配置
 const ruleProviders = {
-
   "reject-list": {
     "type": "http",
     "behavior": "domain",
     "format": "text",
-    "interval": "86400",
+    "interval": 86400,
     "url": "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/reject-list.txt",
     "path": "./ruleset/reject-list.txt"
   }
