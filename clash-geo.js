@@ -25,17 +25,28 @@ const proxyProviders = {
       "additional-prefix": "node | "
     }
   },
-  "dynamic": {
-    ...providersOptions,
-    // 订阅 链接
-    "url": "xxx",
-    // 自动更新时间 86400(秒) / 3600 = 24小时
-    "override": {
-      // 节点名称前缀 p1，用于区别机场节点
-      "additional-prefix": "dynamic | "
-    }
-  },
 }
+
+const myCustomNode = {
+    "VLESS_R_7999": {
+        "name": "VLESS_R_7999",
+        "type": "vless",
+        "server": "113.29.231.249",
+        "port": 7999,
+        "uuid": "16cec33d-8c3f-31d9-b0ce-70174b1fce1d",
+        "tls": true,
+        "client-fingerprint": "chrome",
+        "servername": "learn.microsoft.com",
+        "network": "tcp",
+        "reality-opts": {
+            "public-key": "XCY90yweFc5B_sJJnt7WgdLlr6JQzgSXg9lqNcbX-hQ",
+            "short-id": "7bb8fec0e23b5432"
+        },
+        "tfo": false,
+        "skip-cert-verify": false,
+        "flow": "xtls-rprx-vision"
+    }
+};
 
 // 程序入口
 function main(config) {
@@ -46,7 +57,8 @@ function main(config) {
   if (proxyCount === 0 && proxyProviderCount === 0) {
     throw new Error("配置文件中未找到任何代理");
   }
-
+  // 添加所有自定义节点到 proxies 数组
+  config.proxies.push(...Object.values(myCustomNode));
   // 合并而非覆盖
   config["proxy-providers"] = {
     ...originalProviders,  // 保留原有配置
@@ -90,7 +102,7 @@ const dnsConfig = {
   ],
   "default-nameserver": [
     "223.5.5.5",
-    "1.2.4.8"
+    "119.29.29.29"
   ],
 // 默认的域名解析服务器，如不配置 fallback/proxy-server-nameserver , 则所有域名都由 nameserver 解析
   "nameserver": [
