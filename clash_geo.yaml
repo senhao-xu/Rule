@@ -29,6 +29,11 @@ dns:
   enable: true
   listen: 0.0.0.0:53
   ipv6: false
+  prefer-h3: false
+  respect-rules: true
+  use-system-hosts: false
+  cache-algorithm: arc
+  cache-size: 2048
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
