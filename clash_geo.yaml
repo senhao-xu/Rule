@@ -75,10 +75,14 @@ domain_proxy: &domain_proxy
 
 proxy-providers:
   
-  p1:
+  node:
     <<: *domain_proxy
     url: "http://127.0.0.1:38324/download/node?target=ClashMeta"
     proxy: DIRECT
+    "override": {
+      // 节点名称前缀 node，用于区别机场节点
+      "additional-prefix": "node | "
+    }
 
 
 # mihomo party 覆写部分 ↓
