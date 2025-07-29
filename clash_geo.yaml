@@ -29,11 +29,6 @@ dns:
   enable: true
   listen: 0.0.0.0:53
   ipv6: false
-  prefer-h3: false
-  respect-rules: true
-  use-system-hosts: false
-  cache-algorithm: arc
-  cache-size: 2048
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
@@ -42,8 +37,8 @@ dns:
     - 'geosite:cn'
     - 'geosite:geolocation-!cn'
   default-nameserver:
-    - 223.5.5.5
-    - 1.2.4.8
+    - tls://223.5.5.5
+    - tls://1.2.4.8
 # 默认的域名解析服务器，如不配置 fallback/proxy-server-nameserver , 则所有域名都由 nameserver 解析
   nameserver:
     - https://cloudflare-dns.com/dns-query#Proxy # CloudflareDNS
