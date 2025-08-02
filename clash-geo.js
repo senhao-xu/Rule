@@ -78,7 +78,7 @@ function main(config) {
   config["ipv6"] = false;
   config["unified-delay"] = true;
   config["tcp-concurrent"] = true;
-  config["external-controller"] = ":9090";
+  config["external-controller"] = "9090";
   // 返回修改后的配置
   return config;
 }
@@ -149,7 +149,9 @@ const proxyGroupConfig = [
     },
     {
       "name": "OpenAi", 
-      "type": "select", 
+      "type": "url-test",
+      "url": "http://www.gstatic.com/generate_204",
+      "interval": 300,
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png",
       "filter": "(GPT|美国)",
       "include-all": true 
