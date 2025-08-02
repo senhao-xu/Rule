@@ -28,24 +28,7 @@ const proxyProviders = {
 }
 
 const myCustomNode = {
-    "VLESS_R_7999": {
-        "name": "VLESS_R_7999",
-        "type": "vless",
-        "server": "113.29.231.249",
-        "port": 7999,
-        "uuid": "16cec33d-8c3f-31d9-b0ce-70174b1fce1d",
-        "tls": true,
-        "client-fingerprint": "chrome",
-        "servername": "learn.microsoft.com",
-        "network": "tcp",
-        "reality-opts": {
-            "public-key": "XCY90yweFc5B_sJJnt7WgdLlr6JQzgSXg9lqNcbX-hQ",
-            "short-id": "7bb8fec0e23b5432"
-        },
-        "tfo": false,
-        "skip-cert-verify": false,
-        "flow": "xtls-rprx-vision"
-    }
+  "🇯🇵 Japan-microsoft" :{"type":"vless","name":"🇯🇵 Japan-microsoft","server":"xxx","port":50002,"uuid":"6db481df-a87a-4d49-aa16-a0afc200ab80","tls":true,"flow":"xtls-rprx-vision","client-fingerprint":"chrome","skip-cert-verify":false,"reality-opts":{"public-key":"QQ0ib3Jkc__V4oqbYTZ1B4DWdE_jMzkyfHUoC_eA-hA","short-id":"22c740","_spider-x":"/"},"network":"tcp","servername":"go.microsoft.com"}
 };
 
 // 程序入口
@@ -85,7 +68,7 @@ function main(config) {
 // DNS配置
 const dnsConfig = {
   "enable": true,
-  "listen": "0.0.0.0:53",
+  "listen": "0.0.0.0:1053",
   "ipv6": false,
   "prefer-h3": false,
   "respect-rules": true,
