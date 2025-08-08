@@ -127,7 +127,7 @@ const proxyGroupConfig = [
       "name": "Proxy",
       "type": "select",
       "include-all": true,
-      "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png",
+      "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png",
       "proxies": ["AutoSelect"]
     },
     {
