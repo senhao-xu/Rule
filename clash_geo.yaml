@@ -64,6 +64,9 @@ dns:
       - https://doh.pub/dns-query # 腾讯DoH
 
 proxies:
+  - {"name":"LA-1"}
+  - {"name":"LA-2"}
+  - {"name":"LA-Chain"}
 
 domain_proxy: &domain_proxy
     type: http
@@ -75,15 +78,13 @@ domain_proxy: &domain_proxy
 
 proxy-providers:
   
-  node:
+  狗狗云:
     <<: *domain_proxy
-    url: "http://127.0.0.1:38324/download/node?target=ClashMeta"
+    url: "xxx"
     proxy: DIRECT
-    "override": {
-      // 节点名称前缀 node，用于区别机场节点
-      "additional-prefix": "node | "
+    override: {
+      "additional-prefix": "狗狗云 | "
     }
-
 
 # mihomo party 覆写部分 ↓
 # https://mihomo.party/docs/guide/override/yaml
@@ -98,7 +99,7 @@ proxy-groups:
 
   - name: Proxy
     type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png
     proxies:
       - AutoSelect
     include-all: true
@@ -108,6 +109,14 @@ proxy-groups:
     icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png
     filter: "(GPT|美国)"
     include-all: true
+
+  - name: Relay
+    type: relay
+    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Loop.png
+    proxies:
+      - LA-1
+      - LA-2
+      - LA-Chain
 
   - name: Others
     type: select
@@ -127,7 +136,8 @@ rule-providers:
     interval: 86400
 
 rules:
-  - DOMAIN-SUFFIX,senhao.xyz,DIRECT
+  - DOMAIN-SUFFIX,ping0.cc,Relay
+
   - RULE-SET,reject-list,REJECT
   - GEOSITE,category-ads-all,REJECT
   - GEOSITE,private,DIRECT
