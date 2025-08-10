@@ -27,9 +27,10 @@ geox-url:
 # 开启TUN模式中的严格路由
 dns:
   enable: true
-  listen: 0.0.0.0:53
+  listen: 0.0.0.0:1053
   ipv6: false
   prefer-h3: false
+  use-hosts: true
   respect-rules: true
   use-system-hosts: false
   cache-algorithm: arc
