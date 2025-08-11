@@ -151,7 +151,8 @@ rules:
   - GEOSITE,category-ai-!cn,OpenAi
   - GEOSITE,biliintl,Proxy
   - GEOSITE,onedrive,DIRECT
-  - GEOSITE,microsoft,DIRECT
+  - GEOSITE,microsoft@cn,DIRECT,
+  - GEOSITE,microsoft,OpenAi,
   - GEOSITE,apple-cn,DIRECT
   - GEOSITE,steam@cn,DIRECT
   - GEOSITE,category-games@cn,DIRECT
