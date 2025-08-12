@@ -167,7 +167,7 @@ const rules = [
   'GEOSITE,pixiv,Proxy',
   'GEOSITE,category-scholar-!cn,Proxy',
   'GEOSITE,category-ai-!cn,OpenAi',
-  'GEOSITE,biliintl,Proxy',
+  'GEOSITE,discord,Proxy',
   'GEOSITE,onedrive,DIRECT',
   'GEOSITE,microsoft,DIRECT',
   'GEOSITE,apple-cn,DIRECT',
