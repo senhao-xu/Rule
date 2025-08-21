@@ -6,10 +6,10 @@
 
 // 使用方式
 // links:
-//   - url: "https://xxx/download/node?target=ClashMeta"
-//     prefix: "node"
-//   - url: "https://xxx/download/node?target=ClashMeta"
-//     prefix: "test"
+//   - prefix: "node"
+//     url: "https://xxx/download/node?target=ClashMeta"
+//   - prefix: "test"
+//     url: "https://xxx/download/node?target=ClashMeta"
 // proxies:
 
 
