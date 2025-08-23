@@ -136,7 +136,7 @@ const proxyGroupConfig = [
       "url": "http://www.gstatic.com/generate_204",
       "interval": 300,
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png",
-      "filter": "(GPT|美国)",
+      "filter": "(GPT|美国|LA)",
       "include-all": true 
     },
     { 
