@@ -32,7 +32,7 @@ dns:
   prefer-h3: false
   use-hosts: true
   respect-rules: true
-  use-system-hosts: false
+  use-system-hosts: true
   cache-algorithm: arc
   cache-size: 2048
   enhanced-mode: fake-ip

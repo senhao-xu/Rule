@@ -72,7 +72,7 @@ const dnsConfig = {
   "ipv6": false,
   "prefer-h3": false,
   "respect-rules": true,
-  "use-system-hosts": false,
+  "use-system-hosts": true,
   "cache-algorithm": "arc",
   "cache-size": 2048,
   "enhanced-mode": "fake-ip",
