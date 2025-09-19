@@ -30,8 +30,8 @@ dns:
   listen: 0.0.0.0:1053
   ipv6: false
   prefer-h3: false
-  use-hosts: true
   respect-rules: true
+  use-hosts: true
   use-system-hosts: true
   cache-algorithm: arc
   cache-size: 2048
