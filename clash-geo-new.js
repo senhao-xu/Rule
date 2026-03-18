@@ -145,6 +145,7 @@ const rules = [
   'GEOSITE,github,Proxy',
   'GEOSITE,twitter,Proxy',
   'GEOSITE,pixiv,Proxy',
+  'GEOSITE,cloudflare,Proxy',
   'GEOSITE,cursor,OpenAi',
   'GEOSITE,category-scholar-!cn,Proxy',
   'GEOSITE,category-ai-!cn,OpenAi',
