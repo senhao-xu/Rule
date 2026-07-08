@@ -3,34 +3,6 @@
  * Clash Verge Rev 全局扩展脚本（懒人配置）/ Mihomo Party 覆写脚本
  * URL: https://github.com/wanswu/my-backup
  */
-const providersOptions = {
-    "type": "http",
-    "interval": 3600,
-    "health-check": {
-      "enable": true,
-      "url": "http://www.gstatic.com/generate_204",
-      "interval": 300
-    }
-}
-
-// 多订阅合并，这里添加额外的地址
-const proxyProviders = {
-  "node": {
-    ...providersOptions,
-    // 订阅 链接
-    "url": "http://127.0.0.1:38324/download/node?target=ClashMeta",
-    // 自动更新时间 86400(秒) / 3600 = 24小时
-    "override": {
-      // 节点名称前缀 p1，用于区别机场节点
-      "additional-prefix": "node | "
-    }
-  },
-}
-
-const myCustomNode = {
-  "🇯🇵 Japan-microsoft" :{"type":"vless","name":"🇯🇵 Japan-microsoft","server":"xxx","port":50002,"uuid":"6db481df-a87a-4d49-aa16-a0afc200ab80","tls":true,"flow":"xtls-rprx-vision","client-fingerprint":"chrome","skip-cert-verify":false,"reality-opts":{"public-key":"QQ0ib3Jkc__V4oqbYTZ1B4DWdE_jMzkyfHUoC_eA-hA","short-id":"22c740","_spider-x":"/"},"network":"tcp","servername":"go.microsoft.com"}
-};
-
 // 程序入口
 function main(config) {
   const proxyCount = config?.proxies?.length ?? 0;
@@ -40,12 +12,9 @@ function main(config) {
   if (proxyCount === 0 && proxyProviderCount === 0) {
     throw new Error("配置文件中未找到任何代理");
   }
-  // 添加所有自定义节点到 proxies 数组
-  config.proxies.push(...Object.values(myCustomNode));
   // 合并而非覆盖
   config["proxy-providers"] = {
     ...originalProviders,  // 保留原有配置
-    ...proxyProviders       // 合并新配置（同名则覆盖）
   };
   // 覆盖原配置中DNS配置
   config["dns"] = dnsConfig;
@@ -67,60 +36,106 @@ function main(config) {
 }
 // DNS配置
 const dnsConfig = {
-  "enable": true,
-  "listen": "0.0.0.0:1053",
-  "ipv6": false,
-  "prefer-h3": false,
-  "respect-rules": true,
-  "use-hosts": true,
-  "use-system-hosts": true,
-  "cache-algorithm": "arc",
-  "cache-size": 2048,
-  "enhanced-mode": "fake-ip",
-  "fake-ip-range": "198.18.0.1/16",
+  "enable": true, // DNS开关
+  "listen": "0.0.0.0:1053", // DNS监听地址
+  "ipv6": false, // 禁用IPv6 DNS，避免部分应用IPv6异常
+  "prefer-h3": false, // 不强制使用HTTP3 DoH
+  "respect-rules": true, // DNS遵循规则匹配
+  "use-hosts": true, // 使用hosts文件
+  "use-system-hosts": true, // 使用系统hosts
+  "cache-algorithm": "arc", // DNS缓存算法
+  "cache-size": 8192, // DNS缓存数量
+  "enhanced-mode": "fake-ip", // Fake-IP模式
+  "fake-ip-range": "198.18.0.1/16", // Fake-IP地址池
+  // 不进行Fake-IP替换的域名
   "fake-ip-filter": [
-    "*.senhao.xyz",
-    "geosite:private",
-    "geosite:cn",
-    "geosite:geolocation-!cn"
+    "geosite:private", // 私有域名
+    "*.lan", // 局域网域名
+    // 微信 / 腾讯相关
+    "*.qq.com",
+    "*.qpic.cn",
+    "*.qlogo.cn",
+    "*.weixin.qq.com",
+    "*.wechat.com",
+    // 苹果服务
+    "*.push.apple.com",
+    "*.apple.com",
+    "*.icloud.com",
+    "*.mzstatic.com",
+    // Windows网络检测
+    "www.msftconnecttest.com",
+    "www.msftncsi.com",
+    // OneDrive
+    "*.onedrive.live.com"
   ],
+  // 用于解析DoH服务器地址
   "default-nameserver": [
     "223.5.5.5",
     "119.29.29.29"
   ],
-// 默认的域名解析服务器，如不配置 fallback/proxy-server-nameserver , 则所有域名都由 nameserver 解析
+  // 默认DNS（国外域名）
   "nameserver": [
-    "https://cloudflare-dns.com/dns-query#Proxy", // CloudflareDNS
-    "https://8.8.8.8/dns-query#Proxy" // Google公共DNS
+    "https://cloudflare-dns.com/dns-query#Proxy",
+    "https://dns.google/dns-query#Proxy"
   ],
-// 代理节点域名解析服务器，仅用于解析代理节点的域名
+  // 代理节点域名解析
   "proxy-server-nameserver": [
-    "https://223.5.5.5/dns-query", // 阿里DoH
-    "https://doh.pub/dns-query" // 腾讯DoH
+    "https://223.5.5.5/dns-query",
+    "https://doh.pub/dns-query"
   ],
+  // 直连DNS
   "direct-nameserver": [
-    "https://223.5.5.5/dns-query", // 阿里DoH
-    "https://doh.pub/dns-query" // 腾讯DoH
+    "https://223.5.5.5/dns-query",
+    "https://doh.pub/dns-query"
   ],
-// 指定域名查询的解析服务器，可使用 geosite, 优先于 nameserver/fallback 查询
-  "direct-nameserver-follow-policy": false,
+  // DNS跟随规则
+  "direct-nameserver-follow-policy": true,
+  // DNS策略
   "nameserver-policy": {
-    'geosite:cn': [
+    // 中国大陆域名
+    "geosite:cn": [
       "https://223.5.5.5/dns-query",
       "https://doh.pub/dns-query"
+    ],
+    // 腾讯服务（微信、QQ）
+    "geosite:tencent": [
+      "https://223.5.5.5/dns-query",
+      "https://doh.pub/dns-query"
+    ],
+    // Apple中国服务
+    "geosite:apple-cn": [
+      "https://223.5.5.5/dns-query"
+    ],
+    // Microsoft中国服务
+    "geosite:microsoft@cn": [
+      "https://223.5.5.5/dns-query"
+    ],
+    // OneDrive
+    "geosite:onedrive": [
+      "https://223.5.5.5/dns-query"
     ]
+  },
+  // 国外DNS备用
+  "fallback": [
+    "https://cloudflare-dns.com/dns-query#Proxy",
+    "https://dns.google/dns-query#Proxy"
+  ],
+  // 防止DNS污染
+  "fallback-filter": {
+    "geoip": true,
+    "geoip-code": "CN"
   }
 };
 
 
 // 代理组规则
 const proxyGroupConfig = [
- {
+    {
       "name": "AutoSelect",
       "type": "url-test",
       "url": "http://www.gstatic.com/generate_204",
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png",
-      "interval": 300,
+      // "interval": 300,
       "include-all": true,
       "filter": "(香港|日本|东京)",
     },
@@ -133,11 +148,11 @@ const proxyGroupConfig = [
     },
     {
       "name": "OpenAi", 
-      "type": "url-test",
+      "type": "select",
       "url": "http://www.gstatic.com/generate_204",
-      "interval": 300,
+      // "interval": 300,
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png",
-      "filter": "(GPT|美国|LA)",
+      "filter": "(GPT|美国|LA|德国|家宽|US)",
       "include-all": true 
     },
     { 
@@ -151,50 +166,64 @@ const proxyGroupConfig = [
 
 // 规则集配置
 const ruleProviders = {
-  "reject-list": {
-    "type": "http",
-    "behavior": "domain",
-    "format": "text",
-    "interval": 86400,
-    "url": "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/reject-list.txt",
-    "path": "./ruleset/reject-list.txt"
-  }
+  // "reject-list": {
+  //   "type": "http",
+  //   "behavior": "domain",
+  //   "format": "text",
+  //   "interval": 86400,
+  //   "url": "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/reject-list.txt",
+  //   "path": "./ruleset/reject-list.txt"
+  // }
 };
 
 // 规则
 const rules = [
   // 自定义规则
-  'DOMAIN-SUFFIX,tempmail.cn,DIRECT',
-  'DOMAIN-SUFFIX,senhao.xyz,DIRECT',
+  // 'DOMAIN-SUFFIX,tempmail.cn,DIRECT',
+  // 'DOMAIN-SUFFIX,hostdzire.com,Proxy',
+  // 'DOMAIN-SUFFIX,22112211.xyz,Proxy',
+  // 'DOMAIN-SUFFIX,112320.xyz,Proxy',
+  // 'RULE-SET,reject-list,REJECT',
 
-  'RULE-SET,reject-list,REJECT',
-  'GEOSITE,category-ads-all,REJECT',
-  'GEOSITE,private,DIRECT',
-  'GEOSITE,youtube,Proxy',
-  'GEOSITE,google,Proxy',
-  'GEOSITE,github,Proxy',
-  'GEOSITE,twitter,Proxy',
-  'GEOSITE,pixiv,Proxy',
-  'GEOSITE,cursor,OpenAi',
-  'GEOSITE,category-scholar-!cn,Proxy',
-  'GEOSITE,category-ai-!cn,OpenAi',
-  'GEOSITE,discord,Proxy',
-  'GEOSITE,onedrive,DIRECT',
-  'GEOSITE,microsoft@cn,DIRECT',
-  'GEOSITE,microsoft,OpenAi',
-  'GEOSITE,apple-cn,DIRECT',
-  'GEOSITE,steam@cn,DIRECT',
-  'GEOSITE,category-games@cn,DIRECT',
-  'GEOSITE,geolocation-cn,DIRECT',
-  'GEOSITE,geolocation-cn@cn,DIRECT',
-  'GEOSITE,geolocation-!cn,Proxy',
-  'GEOSITE,cn,DIRECT',
+  // 本地
+  'GEOSITE,private,DIRECT', // 私有域名、本地服务直连
+  'GEOIP,private,DIRECT,no-resolve', // 私有IP直连，不解析域名
+  'GEOIP,lan,DIRECT,no-resolve', // 局域网IP直连，不解析域名
 
-  // GEOIP 规则
-  'GEOIP,private,DIRECT,no-resolve',
-  'GEOIP,telegram,Proxy,no-resolve',
-  'GEOIP,google,Proxy,no-resolve',
-  'GEOIP,lan,DIRECT,no-resolve',
-  'GEOIP,CN,DIRECT',
-  'MATCH,Others'
+  'GEOSITE,category-ads-all,REJECT', // 广告联盟、统计、追踪域名拦截
+  'GEOSITE,tencent,DIRECT', // 腾讯服务直连（微信、QQ、腾讯相关服务）
+  // AI
+  'GEOSITE,openai,OpenAi', // OpenAI服务
+  'GEOSITE,anthropic,OpenAi', // Anthropic Claude服务
+  'GEOSITE,cursor,OpenAi', // Cursor AI编辑器服务
+  'GEOSITE,category-ai-!cn,OpenAi', // 海外AI服务（排除中国大陆）
+
+  'GEOSITE,category-scholar-!cn,Proxy', // 海外学术资源（排除中国大陆）
+  
+  'GEOSITE,google,Proxy', // Google全系列服务
+  'GEOSITE,youtube,Proxy', // YouTube视频服务
+  'GEOSITE,github,Proxy', // GitHub代码托管
+  'GEOSITE,twitter,Proxy', // Twitter / X社交平台
+  'GEOSITE,pixiv,Proxy', // Pixiv插画社区
+  'GEOSITE,discord,Proxy', // Discord通信服务
+  'GEOSITE,wallhaven,Proxy', // Wallhaven壁纸网站
+  'GEOSITE,onedrive,DIRECT', // OneDrive云存储直连
+  'GEOSITE,microsoft@cn,DIRECT', // Microsoft中国服务直连
+  'GEOSITE,microsoft,Proxy', // Microsoft海外服务代理
+  'GEOSITE,apple-cn,DIRECT', // Apple中国服务直连
+  'GEOSITE,steam@cn,DIRECT', // Steam中国服务直连
+  'GEOSITE,category-games@cn,DIRECT', // 中国游戏平台直连
+  'GEOSITE,geolocation-cn,DIRECT', // 中国地区服务直连
+  // 自定义规则
+  'DOMAIN-SUFFIX,ipwho.is,Proxy', // IP地理位置查询服务
+  'DOMAIN-SUFFIX,ipapi.co,Proxy', // IP信息查询服务
+  'DOMAIN-SUFFIX,aloxaf.com,Proxy', // GeoViewer地理位置查询服务
+
+  'GEOSITE,geolocation-!cn,Proxy', // 非中国地区服务代理
+  'GEOSITE,cn,DIRECT', // 中国大陆网站直连
+  'GEOIP,telegram,Proxy,no-resolve', // Telegram IP代理
+  'GEOIP,google,Proxy,no-resolve', // Google IP代理
+  'GEOIP,CN,DIRECT', // 中国大陆IP直连
+
+  'MATCH,Others' // 未匹配流量走Others策略组
 ];
