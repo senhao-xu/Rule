@@ -18,6 +18,8 @@ function main(config) {
   };
   // 覆盖原配置中DNS配置
   config["dns"] = dnsConfig;
+  // TUN配置
+  config["tun"] = tunConfig;
   // 覆盖原配置中的代理组
   config["proxy-groups"] = proxyGroupConfig;
   // 覆盖原配置中的规则
@@ -31,6 +33,7 @@ function main(config) {
   config["unified-delay"] = true;
   config["tcp-concurrent"] = true;
   config["external-controller"] = "9090";
+  config["find-process-mode"] = "strict";
   // 返回修改后的配置
   return config;
 }
@@ -65,6 +68,11 @@ const dnsConfig = {
     // Windows网络检测
     "www.msftconnecttest.com",
     "www.msftncsi.com",
+    "dns.msftncsi.com",
+    "*.msftconnecttest.com",
+    "*.msftncsi.com",
+    // Windows系统服务
+    "*.windows.com",
     // OneDrive
     "*.onedrive.live.com"
   ],
@@ -127,6 +135,24 @@ const dnsConfig = {
   }
 };
 
+// TUN配置
+const tunConfig = {
+  enable: true,
+  // 网络栈
+  "stack": "gvisor",
+  // 自动配置系统路由
+  "auto-route": true,
+  // 自动检测出口网卡
+  "auto-detect-interface": true,
+  // 严格路由模式
+  "strict-route": true,
+  // DNS劫持
+  "dns-hijack": [
+    "any:53"
+  ],
+  // MTU
+  "mtu": 1500
+};
 
 // 代理组规则
 const proxyGroupConfig = [
@@ -196,6 +222,7 @@ const rules = [
   'GEOSITE,openai,OpenAi', // OpenAI服务
   'GEOSITE,anthropic,OpenAi', // Anthropic Claude服务
   'GEOSITE,cursor,OpenAi', // Cursor AI编辑器服务
+  'DOMAIN-SUFFIX,models.dev,OpenAi',
   'GEOSITE,category-ai-!cn,OpenAi', // 海外AI服务（排除中国大陆）
 
   'GEOSITE,category-scholar-!cn,Proxy', // 海外学术资源（排除中国大陆）
@@ -208,8 +235,8 @@ const rules = [
   'GEOSITE,discord,Proxy', // Discord通信服务
   'GEOSITE,wallhaven,Proxy', // Wallhaven壁纸网站
   'GEOSITE,onedrive,DIRECT', // OneDrive云存储直连
-  'GEOSITE,microsoft@cn,DIRECT', // Microsoft中国服务直连
-  'GEOSITE,microsoft,Proxy', // Microsoft海外服务代理
+  // 'GEOSITE,microsoft@cn,DIRECT', // Microsoft中国服务直连
+  'GEOSITE,microsoft,DIRECT', // Microsoft海外服务代理
   'GEOSITE,apple-cn,DIRECT', // Apple中国服务直连
   'GEOSITE,steam@cn,DIRECT', // Steam中国服务直连
   'GEOSITE,category-games@cn,DIRECT', // 中国游戏平台直连
