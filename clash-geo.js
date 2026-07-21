@@ -223,6 +223,7 @@ const rules = [
   'GEOSITE,anthropic,OpenAi', // Anthropic Claude服务
   'GEOSITE,cursor,OpenAi', // Cursor AI编辑器服务
   'DOMAIN-SUFFIX,models.dev,OpenAi',
+  'GEOSITE,huggingface,Proxy', //huggingface
   'GEOSITE,category-ai-!cn,OpenAi', // 海外AI服务（排除中国大陆）
 
   'GEOSITE,category-scholar-!cn,Proxy', // 海外学术资源（排除中国大陆）
