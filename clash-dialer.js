@@ -237,7 +237,7 @@ function createProxyGroupConfig(chainProxyNames, chainProviderNames) {
       "name": "Chain",
       "type": "select",
       "proxies": ["Chain-Exit"],
-      "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Chain.png"
+      "icon": "https://raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Cat.png"
     },
     {
       "name": "Proxy",
