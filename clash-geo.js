@@ -216,6 +216,9 @@ const rules = [
   'GEOIP,private,DIRECT,no-resolve', // 私有IP直连，不解析域名
   'GEOIP,lan,DIRECT,no-resolve', // 局域网IP直连，不解析域名
 
+  // 微信新旧版本均强制直连，覆盖小程序等非腾讯域名请求
+  'PROCESS-NAME,Weixin.exe,DIRECT',
+  'PROCESS-NAME,WeChat.exe,DIRECT',
   'GEOSITE,category-ads-all,REJECT', // 广告联盟、统计、追踪域名拦截
   'GEOSITE,tencent,DIRECT', // 腾讯服务直连（微信、QQ、腾讯相关服务）
   // AI
