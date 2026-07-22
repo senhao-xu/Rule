@@ -104,6 +104,7 @@ const dnsConfig = {
   // 不进行Fake-IP替换的域名
   "fake-ip-filter": [
     "geosite:private", // 私有域名
+    "geosite:tencent", // 微信、QQ等腾讯服务返回真实IP
     "*.lan", // 局域网域名
     // 微信 / 腾讯相关
     "*.qq.com",
@@ -189,7 +190,7 @@ const dnsConfig = {
 // TUN配置
 const tunConfig = {
   enable: true,
-  // 网络栈
+  // Windows下mixed栈兼顾兼容性与微信等应用的连接性能
   "stack": "gvisor",
   // 自动配置系统路由
   "auto-route": true,
@@ -236,7 +237,7 @@ function createProxyGroupConfig(chainProxyNames, chainProviderNames) {
       "name": "Chain",
       "type": "select",
       "proxies": ["Chain-Exit"],
-      "icon": "https://raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Cat.png"
+      "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Chain.png"
     },
     {
       "name": "Proxy",
@@ -254,7 +255,6 @@ function createProxyGroupConfig(chainProxyNames, chainProviderNames) {
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png",
       "filter": "(GPT|美国|LA|德国|家宽|US)",
       "exclude-filter": "\\[Chain Exit\\]$",
-      "proxies": ["Chain"],
       "include-all": true 
     },
     { 
@@ -293,6 +293,9 @@ const rules = [
   'GEOIP,private,DIRECT,no-resolve', // 私有IP直连，不解析域名
   'GEOIP,lan,DIRECT,no-resolve', // 局域网IP直连，不解析域名
 
+  // 微信新旧版本均强制直连，覆盖小程序等非腾讯域名请求
+  'PROCESS-NAME,Weixin.exe,DIRECT',
+  'PROCESS-NAME,WeChat.exe,DIRECT',
   'GEOSITE,category-ads-all,REJECT', // 广告联盟、统计、追踪域名拦截
   'GEOSITE,tencent,DIRECT', // 腾讯服务直连（微信、QQ、腾讯相关服务）
   // AI
