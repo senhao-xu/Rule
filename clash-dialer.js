@@ -255,6 +255,7 @@ function createProxyGroupConfig(chainProxyNames, chainProviderNames) {
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png",
       "filter": "(GPT|美国|LA|德国|家宽|US)",
       "exclude-filter": "\\[Chain Exit\\]$",
+      "proxies": ["Chain"],
       "include-all": true 
     },
     { 
