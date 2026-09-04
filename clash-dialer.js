@@ -191,7 +191,7 @@ const dnsConfig = {
 const tunConfig = {
   enable: true,
   // Windows下mixed栈兼顾兼容性与微信等应用的连接性能
-  "stack": "gvisor",
+  "stack": "mixed",
   // 自动配置系统路由
   "auto-route": true,
   // 自动检测出口网卡
@@ -209,16 +209,16 @@ const tunConfig = {
 // 代理组规则
 function createProxyGroupConfig(chainProxyNames, chainProviderNames) {
   return [
-    {
-      "name": "AutoSelect",
-      "type": "url-test",
-      "url": "http://www.gstatic.com/generate_204",
-      "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png",
-      // "interval": 300,
-      "include-all": true,
-      "filter": "(香港|日本|东京)",
-      "exclude-filter": "\\[Chain Exit\\]$",
-    },
+    // {
+    //   "name": "AutoSelect",
+    //   "type": "url-test",
+    //   "url": "http://www.gstatic.com/generate_204",
+    //   "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png",
+    //   // "interval": 300,
+    //   "include-all": true,
+    //   "filter": "(香港|日本|东京)",
+    //   "exclude-filter": "\\[Chain Exit\\]$",
+    // },
     {
       "name": "Chain-Entry",
       "type": "select",
@@ -309,6 +309,7 @@ const rules = [
 
   'GEOSITE,category-scholar-!cn,Proxy', // 海外学术资源（排除中国大陆）
   
+  'GEOSITE,oracle,DIRECT', // oracle全系列服务
   'GEOSITE,google,Proxy', // Google全系列服务
   'GEOSITE,youtube,Proxy', // YouTube视频服务
   'GEOSITE,github,Proxy', // GitHub代码托管
