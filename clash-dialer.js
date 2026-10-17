@@ -3,8 +3,35 @@
  * Clash Verge Rev 全局扩展脚本（懒人配置）/ Mihomo Party 覆写脚本
  * URL: https://github.com/wanswu/my-backup
  */
+// 链式代理配置：本机 -> entry（入口）-> exit（出口）-> 目标网站。
+// name 是新增节点的名称；entry / exit 支持原始名称或带订阅前后缀的完整显示名称。
+// 两个节点名都为空的示例会跳过；只填一个会报错。复制一项即可增加链路，[] 表示不启用链路。
+// entryProvider / exitProvider 可选：指定动态提供器，避免不同订阅中的同名节点混淆。
+// 动态入口使用隐藏辅助组；动态出口仍是真实协议节点，随原订阅自动更新。
+// 链式节点在 Proxy / OpenAi 中置顶；多条链路按下面的填写顺序排列。
+// 入口未匹配时拒绝连接；出口未匹配时不会出现对应的新节点。
+const chainDefinitions = [
+  {
+    name: "DMIT->Lisa",
+    entry: "DMIT-V6",
+    exit: "【家宽】Lisa美国【0.5x】",
+    entryProvider: "node", // 可选，当前入口的订阅来源
+    exitProvider: "free"   // 可选，当前出口的订阅来源
+  }
+];
+
 // 程序入口
 function main(config) {
+  try {
+    return applyConfig(config);
+  } catch (error) {
+    // Clash Verge Rev 会将异常统一显示为 Script execution failed，先记录具体原因。
+    console.error(`配置脚本错误：${error.message || String(error)}`);
+    throw error;
+  }
+}
+
+function applyConfig(config) {
   const proxyCount = config?.proxies?.length ?? 0;
   const originalProviders = config?.["proxy-providers"] || {};
   const proxyProviderCount = typeof originalProviders === "object" ? Object.keys(originalProviders).length : 0;
@@ -17,20 +44,17 @@ function main(config) {
     ...(config?.proxies || []),
     ...chainConfig.proxies
   ];
-  // 合并而非覆盖
+  // 保留原有订阅；出口副本使用相同来源及更新周期。
   config["proxy-providers"] = {
-    ...originalProviders,  // 保留原有配置
-    ...chainConfig.providers,
+    ...originalProviders,
+    ...chainConfig.providers
   };
   // 覆盖原配置中DNS配置
   config["dns"] = dnsConfig;
   // TUN配置
   config["tun"] = tunConfig;
   // 覆盖原配置中的代理组
-  config["proxy-groups"] = createProxyGroupConfig(
-    chainConfig.proxyNames,
-    chainConfig.providerNames
-  );
+  config["proxy-groups"] = createProxyGroupConfig(chainConfig);
   // 覆盖原配置中的规则
   config["rule-providers"] = ruleProviders;
   config["rules"] = rules;
@@ -47,45 +71,166 @@ function main(config) {
   return config;
 }
 
-const chainProxySuffix = " [Chain Exit]";
-const chainProviderSuffix = " [Chain Provider]";
+// Mihomo 的过滤器用反引号分隔；替换字符串中的 $ 需要转义。
+function regexLiteral(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/`/g, "\\x60");
+}
 
-// Mihomo已移除relay；复制出站节点，并让它们通过入口策略组建立连接。
+function exactNameFilter(names) {
+  return `\\A(${[...new Set(names)].map(regexLiteral).join("|")})\\z`;
+}
+
+function replacementLiteral(value) {
+  return value.replace(/\$/g, () => "$$");
+}
+
+function providerNodeNames(name, provider) {
+  const override = provider?.override || {};
+  return [name, `${override["additional-prefix"] || ""}${name}${override["additional-suffix"] || ""}`];
+}
+
+const chainInternalFilter = "\\[__chain_internal_[0-9]+__\\]\\z";
+
+// 缓存同时绑定提供器名称、URL 和原路径，切换订阅后不会读取另一来源的旧节点。
+function chainProviderCacheKey(source, provider) {
+  const identity = JSON.stringify([source, provider.url || "", provider.path || ""]);
+  let hash = 2166136261;
+  for (let i = 0; i < identity.length; i++) {
+    hash = Math.imul(hash ^ identity.charCodeAt(i), 16777619) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
+}
+
+// 静态出口直接复制；动态出口由提供器按原订阅生成并重命名，不增加出口策略组。
 function createChainConfig(proxies, providers) {
-  const chainedProxies = proxies
-    .filter(proxy => proxy && typeof proxy.name === "string")
-    .map(proxy => ({
-      ...proxy,
-      "name": `${proxy.name}${chainProxySuffix}`,
-      "dialer-proxy": "Chain-Entry"
-    }));
+  const originalProxies = proxies.filter(proxy => proxy && typeof proxy.name === "string");
+  const originalProxyNames = originalProxies.map(proxy => proxy.name);
+  const originalProviderNames = Object.keys(providers);
+  const proxyByName = new Map(originalProxies.map(proxy => [proxy.name, proxy]));
+  const chainedProxies = [];
+  const chainedProviders = {};
+  const groups = [];
+  const chainProxyNames = [];
+  const chainProviderNames = [];
+  const definitions = chainDefinitions.filter((definition, index) => {
+    if (!definition || typeof definition !== "object") {
+      throw new Error(`第 ${index + 1} 条链路配置无效`);
+    }
+    if (definition.entry === "" && definition.exit === "") return false;
+    for (const field of ["name", "entry", "exit"]) {
+      if (typeof definition[field] !== "string" || !definition[field].trim()) {
+        throw new Error(`第 ${index + 1} 条链路的 ${field} 必须填写，节点名按完整名称匹配`);
+      }
+    }
+    return true;
+  });
+  const usedNames = new Set([
+    ...originalProxyNames,
+    ...originalProviderNames,
+    "Proxy", "OpenAi", "Others", "GLOBAL", "DIRECT", "REJECT", "REJECT-DROP", "PASS", "COMPATIBLE", "default"
+  ]);
 
-  const chainedProviders = Object.fromEntries(
-    Object.entries(providers).map(([name, provider]) => {
-      const originalSuffix = provider?.override?.["additional-suffix"] || "";
-      const chainedProvider = {
+  // 新节点名不能与原始节点、代理组或其他链式节点重名。
+  for (const { name } of definitions) {
+    if (usedNames.has(name)) {
+      throw new Error(`链路显示名称重复或与现有名称冲突：${name}`);
+    }
+    usedNames.add(name);
+  }
+  function allocateName(base) {
+    let name = base;
+    while (usedNames.has(name)) name += "_";
+    usedNames.add(name);
+    return name;
+  }
+  function sourceProviders(providerName, chainName) {
+    if (providerName === undefined || providerName === "") return [...originalProviderNames];
+    if (typeof providerName !== "string" || !Object.prototype.hasOwnProperty.call(providers, providerName)) {
+      throw new Error(`链路「${chainName}」的提供器不存在：${providerName}`);
+    }
+    return [providerName];
+  }
+
+  definitions.forEach(({ name, entry, exit, entryProvider, exitProvider }, index) => {
+    const entrySources = sourceProviders(entryProvider, name);
+    const exitSources = sourceProviders(exitProvider, name);
+    const entryProxy = entryProvider ? undefined : proxyByName.get(entry);
+    const exitProxy = exitProvider ? undefined : proxyByName.get(exit);
+    for (const [role, nodeName, node, sources] of [
+      ["入口", entry, entryProxy, entrySources],
+      ["出口", exit, exitProxy, exitSources]
+    ]) {
+      if (!node && sources.length === 0) {
+        throw new Error(`链路「${name}」的${role}节点不存在：${nodeName}，且没有可用的动态提供器`);
+      }
+    }
+
+    let dialerName = entry;
+    if (!entryProxy) {
+      dialerName = allocateName(`__chain_${index + 1}_entry`);
+      groups.push({
+        "name": dialerName,
+        "type": "select",
+        "hidden": true,
+        "use": entrySources,
+        "filter": exactNameFilter(entrySources.flatMap(source => providerNodeNames(entry, providers[source]))),
+        "empty-fallback": "REJECT"
+      });
+    }
+
+    if (exitProxy) {
+      chainedProxies.push({ ...exitProxy, "name": name, "dialer-proxy": dialerName });
+      chainProxyNames.push(name);
+      return;
+    }
+
+    const internalSuffix = ` [__chain_internal_${index + 1}__]`;
+    exitSources.forEach((source, providerIndex) => {
+      const provider = providers[source];
+      const override = provider?.override || {};
+      const cloneName = allocateName(`__chain_${index + 1}_exit_provider_${providerIndex + 1}`);
+      // 先保留原来的重命名和前后缀，再只将指定出口改为用户名称。
+      // 其余节点附加内部标记，在普通代理组中排除，避免订阅未匹配时产生空提供器错误。
+      const clone = {
         ...provider,
+        "health-check": { ...(provider?.["health-check"] || {}), "enable": false },
         "override": {
-          ...(provider?.override || {}),
-          "additional-suffix": `${originalSuffix}${chainProxySuffix}`,
-          "dialer-proxy": "Chain-Entry"
+          ...override,
+          "dialer-proxy": dialerName,
+          "additional-prefix": "",
+          "additional-suffix": "",
+          "proxy-name": [
+            ...(override["proxy-name"] || []),
+            {
+              "pattern": "\\A([\\s\\S]*)\\z",
+              "target": `${replacementLiteral(override["additional-prefix"] || "")}$1${replacementLiteral(override["additional-suffix"] || "")}${internalSuffix}`
+            },
+            {
+              "pattern": exactNameFilter(providerNodeNames(exit, provider).map(nodeName => `${nodeName}${internalSuffix}`)),
+              "target": replacementLiteral(name)
+            }
+          ]
         }
       };
-      if (typeof provider?.path === "string") {
-        chainedProvider.path = `${provider.path}.chain`;
+      // HTTP 独立缓存；file 读取原文件；inline 保留原 payload。
+      if (provider?.type === "http") {
+        const cacheKey = chainProviderCacheKey(source, provider);
+        clone.path = `./proxy_providers/chain-${index + 1}-${providerIndex + 1}-${cacheKey}.yaml`;
       }
-      return [
-        `${name}${chainProviderSuffix}`,
-        chainedProvider
-      ];
-    })
-  );
+      chainedProviders[cloneName] = clone;
+      chainProviderNames.push(cloneName);
+    });
+  });
 
   return {
     "proxies": chainedProxies,
-    "proxyNames": chainedProxies.map(proxy => proxy.name),
     "providers": chainedProviders,
-    "providerNames": Object.keys(chainedProviders)
+    "groups": groups,
+    "chainProxyNames": chainProxyNames,
+    "chainProviderNames": chainProviderNames,
+    "chainNames": definitions.map(({ name }) => name),
+    "originalProxyNames": originalProxyNames,
+    "originalProviderNames": originalProviderNames
   };
 }
 // DNS配置
@@ -207,45 +352,28 @@ const tunConfig = {
 };
 
 // 代理组规则
-function createProxyGroupConfig(chainProxyNames, chainProviderNames) {
+function createProxyGroupConfig(chainConfig) {
+  const aiFilter = "(GPT|美国|LA|德国|家宽|US)";
+  // Mihomo 按反引号分段的筛选顺序排列节点，可让动态链路排在原有静态节点之前。
+  const chainFilters = chainConfig.chainNames.map(name => exactNameFilter([name]));
+  const aiProxies = [
+    ...chainConfig.chainProxyNames,
+    ...chainConfig.originalProxyNames.filter(name => new RegExp(aiFilter).test(name))
+  ];
+  if (aiProxies.length === 0 && chainConfig.originalProviderNames.length === 0) {
+    aiProxies.push("Proxy");
+  }
   return [
-    // {
-    //   "name": "AutoSelect",
-    //   "type": "url-test",
-    //   "url": "http://www.gstatic.com/generate_204",
-    //   "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png",
-    //   // "interval": 300,
-    //   "include-all": true,
-    //   "filter": "(香港|日本|东京)",
-    //   "exclude-filter": "\\[Chain Exit\\]$",
-    // },
-    {
-      "name": "Chain-Entry",
-      "type": "select",
-      "include-all": true,
-      "exclude-filter": "\\[Chain Exit\\]$",
-      "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png"
-    },
-    {
-      "name": "Chain-Exit",
-      "type": "select",
-      "proxies": chainProxyNames,
-      "use": chainProviderNames,
-      "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Server.png"
-    },
-    {
-      "name": "Chain",
-      "type": "select",
-      "proxies": ["Chain-Exit"],
-      "icon": "https://raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Cat.png"
-    },
+    ...chainConfig.groups,
     {
       "name": "Proxy",
       "type": "select",
-      "include-all": true,
-      "exclude-filter": "\\[Chain Exit\\]$",
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png",
-      "proxies": ["AutoSelect", "Chain"]
+      // 链式节点置顶，其余节点保留原顺序。
+      "filter": chainFilters.length > 0 ? [...chainFilters, "[\\s\\S]*"].join("`") : "",
+      "proxies": [...chainConfig.chainProxyNames, ...chainConfig.originalProxyNames],
+      "use": [...chainConfig.originalProviderNames, ...chainConfig.chainProviderNames],
+      "exclude-filter": chainInternalFilter
     },
     {
       "name": "OpenAi", 
@@ -253,10 +381,10 @@ function createProxyGroupConfig(chainProxyNames, chainProviderNames) {
       "url": "http://www.gstatic.com/generate_204",
       // "interval": 300,
       "icon": "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png",
-      "filter": "(GPT|美国|LA|德国|家宽|US)",
-      "exclude-filter": "\\[Chain Exit\\]$",
-      "proxies": ["Chain"],
-      "include-all": true 
+      "filter": [...chainFilters, aiFilter].join("`"),
+      "proxies": aiProxies,
+      "use": [...chainConfig.originalProviderNames, ...chainConfig.chainProviderNames],
+      "exclude-filter": chainInternalFilter
     },
     { 
       "name": "Others", 
@@ -297,9 +425,11 @@ const rules = [
   // 微信新旧版本均强制直连，覆盖小程序等非腾讯域名请求
   'PROCESS-NAME,Weixin.exe,DIRECT',
   'PROCESS-NAME,WeChat.exe,DIRECT',
+  
   'GEOSITE,category-ads-all,REJECT', // 广告联盟、统计、追踪域名拦截
   'GEOSITE,tencent,DIRECT', // 腾讯服务直连（微信、QQ、腾讯相关服务）
   // AI
+  'PROCESS-NAME,ChatGPT.exe,OpenAi',
   'GEOSITE,openai,OpenAi', // OpenAI服务
   'GEOSITE,anthropic,OpenAi', // Anthropic Claude服务
   'GEOSITE,cursor,OpenAi', // Cursor AI编辑器服务
@@ -318,7 +448,7 @@ const rules = [
   'GEOSITE,discord,Proxy', // Discord通信服务
   'GEOSITE,wallhaven,Proxy', // Wallhaven壁纸网站
   'GEOSITE,onedrive,DIRECT', // OneDrive云存储直连
-  // 'GEOSITE,microsoft@cn,DIRECT', // Microsoft中国服务直连
+  'GEOSITE,microsoft@cn,DIRECT', // Microsoft中国服务直连
   'GEOSITE,microsoft,DIRECT', // Microsoft海外服务代理
   'GEOSITE,apple-cn,DIRECT', // Apple中国服务直连
   'GEOSITE,steam@cn,DIRECT', // Steam中国服务直连
