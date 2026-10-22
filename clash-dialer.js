@@ -2,6 +2,8 @@
  * 个人备份使用，该脚本适用与Mihomo Party和 Clash Verge Rev
  * Clash Verge Rev 全局扩展脚本（懒人配置）/ Mihomo Party 覆写脚本
  * URL: https://github.com/wanswu/my-backup
+ * Clash Verge Rev 2.5.8：端口、IPv6、统一延迟及 TUN 请在应用中设置。
+ * 升级操作见同目录 UPGRADE-2.5.8.md。
  */
 // 链式代理配置：本机 -> entry（入口）-> exit（出口）-> 目标网站。
 // name 是新增节点的名称；entry / exit 支持原始名称或带订阅前后缀的完整显示名称。
@@ -49,23 +51,20 @@ function applyConfig(config) {
     ...originalProviders,
     ...chainConfig.providers
   };
-  // 覆盖原配置中DNS配置
-  config["dns"] = dnsConfig;
-  // TUN配置
-  config["tun"] = tunConfig;
+  // 覆盖 DNS 配置，保留应用/上游传入的 IPv6 开关，避免与 DNS 覆写冲突。
+  const dnsIpv6 = config["dns"]?.["ipv6"];
+  config["dns"] = { ...dnsConfig };
+  if (typeof dnsIpv6 === "boolean") config["dns"]["ipv6"] = dnsIpv6;
+  // 保留传入的 TUN 配置；协议栈建议在应用的 TUN 设置中选择 Mips。
   // 覆盖原配置中的代理组
   config["proxy-groups"] = createProxyGroupConfig(chainConfig);
   // 覆盖原配置中的规则
   config["rule-providers"] = ruleProviders;
   config["rules"] = rules;
-  //覆盖通用配置
-  config["mixed-port"] = 7890;
-  config["allow-lan"] = true;
+  // 端口、局域网访问、IPv6、统一延迟和外部控制器由应用设置管理。
+  // 脚本只修改未由应用接管的通用字段。
   config["bind-address"] = "*";
-  config["ipv6"] = false;
-  config["unified-delay"] = true;
   config["tcp-concurrent"] = true;
-  config["external-controller"] = "9090";
   config["find-process-mode"] = "strict";
   // 返回修改后的配置
   return config;
@@ -237,7 +236,7 @@ function createChainConfig(proxies, providers) {
 const dnsConfig = {
   "enable": true, // DNS开关
   "listen": "0.0.0.0:1053", // DNS监听地址
-  "ipv6": false, // 禁用IPv6 DNS，避免部分应用IPv6异常
+  "ipv6": false, // 上游未指定 DNS IPv6 时的默认值；已指定时保留其值
   "prefer-h3": false, // 不强制使用HTTP3 DoH
   "respect-rules": true, // DNS遵循规则匹配
   "use-hosts": true, // 使用hosts文件
@@ -330,25 +329,6 @@ const dnsConfig = {
     "geoip": true,
     "geoip-code": "CN"
   }
-};
-
-// TUN配置
-const tunConfig = {
-  enable: true,
-  // Windows下mixed栈兼顾兼容性与微信等应用的连接性能
-  "stack": "mixed",
-  // 自动配置系统路由
-  "auto-route": true,
-  // 自动检测出口网卡
-  "auto-detect-interface": true,
-  // 严格路由模式
-  "strict-route": true,
-  // DNS劫持
-  "dns-hijack": [
-    "any:53"
-  ],
-  // MTU
-  "mtu": 1500
 };
 
 // 代理组规则
